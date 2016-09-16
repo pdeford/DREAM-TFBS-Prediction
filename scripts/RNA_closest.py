@@ -96,7 +96,7 @@ print >> sys.stderr, "Processing"
 chroms = ["chr{}".format(x) for x in range(1,23)+["X"]]
 
 #print "#chrom\tstart\tstop\tgene1\tgene2\tgene3\tgene4\tgene5"
-
+print "#chrom\tstart\tstop\t" + "\t".join(["\t".join(cell_types)]*5)
 def wrapper(i):
 	genes = list(closestGenes(chrom,i,i+50))
 	values = [str(x) for x in np.hstack([RNA_data[gene] for gene in genes])]

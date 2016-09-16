@@ -68,6 +68,8 @@ for i in range(len(header)):
 		break
 cell_column = i
 
+header = rna_file.readline().strip().split()
+cell_columns = [i for i,c in enumerate(header) if c==train_cell]
 
 data = []
 
@@ -87,7 +89,8 @@ for line in training_chip:
 		rna_fields = rna_line.strip().split()
 		if rna_fields[0] == chrom:
 			if (int(rna_fields[1])+int(rna_fields[2]))/2 == mid:
-				RNA = [float(x) for x in rna_fields[3:]]
+				#RNA = [float(x) for x in rna_fields[3:]]
+				RNA = [float(rna_fields[i]) for i in cell_columns]
 				break
 
 	if chrom not in chroms:
