@@ -88,3 +88,4 @@ fi
 # CREATE THE ARRAYS FOR TRAINING THE MODELS
 
 python train_all.py $data_dir $out_dir
+
