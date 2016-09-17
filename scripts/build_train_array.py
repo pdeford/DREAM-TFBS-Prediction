@@ -47,7 +47,7 @@ def update_data(file_object, column, object_to_update, counter, column_end=None)
 
 def populate(file_object, column, interval, size, column_end=None):
 	if column_end is None: slicer = lambda x:float(x[column])
-	elif column_end is True: slicer = lambda x:[float(f) for f in x[column:])
+	elif column_end is True: slicer = lambda x:[float(f) for f in x[column:]
 	else: slicer = lambda x:[float(f) for f in x[column:column_end]]
 
 	l = []
