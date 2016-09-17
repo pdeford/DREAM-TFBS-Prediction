@@ -101,7 +101,7 @@ for line in training_chip:
 	if chrom not in chroms:
 		print >> sys.stderr, "..." + chrom
 		chroms.append(chrom)
-		#for f in [pwm_file, strum_file, dnase_fil, rna_file]: f.seek(0)
+		for f in [pwm_file, strum_file, dnase_fil, rna_file]: f.seek(0)
 	
 		DNASE  = populate(dnase_file, 4, 500, 25)
 		PWM    = populate(pwm_file, 7, 500, 25)
