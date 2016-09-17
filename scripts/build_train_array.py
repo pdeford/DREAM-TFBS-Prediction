@@ -99,7 +99,7 @@ for line in training_chip:
 	
 		DNASE  = populate(dnase_file, 4, 500, 25)
 		PWM    = populate(pwm_file, 7, 500, 25)
-		STRUM  = populate(strum_file, 7, 500 25)
+		STRUM  = populate(strum_file, 7, 500, 25)
 		KMERS  = populate(kmer_file, 1, 500, 25,True)
 		P_FOOT = calc_foot(PWM)
 		S_FOOT = calc_foot(STRUM)
