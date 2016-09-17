@@ -93,7 +93,7 @@ for line in training_chip:
 	for rna_line in rna_file:
 		rna_fields = rna_line.strip().split()
 		if rna_fields[0] == chrom:
-			if (int(rna_fields[1])+int(rna_fields[2]))/2 == mid:
+			if int(rna_fields[1]) == mid:
 				#RNA = [float(x) for x in rna_fields[3:]]
 				RNA = [float(rna_fields[i]) for i in cell_columns]
 				break
