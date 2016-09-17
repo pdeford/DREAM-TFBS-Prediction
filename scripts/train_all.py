@@ -36,7 +36,8 @@ for TF in ["ATF7"]:
 		$out_dir'/'$cell'_DNase.tsv' \
 		$out_dir'/RNA_vals.tsv' \
 		$cell \
-		$out_dir'/kmers.tsv'""" % (TF, cell, data_dir, out_dir),
+		$out_dir'/kmers.tsv' \
+		$out_dir""" % (TF, cell, data_dir, out_dir),
 			shell=True)
 
 

@@ -15,7 +15,8 @@ python build_train_array.py \
   $out_dir'/'$cell'_DNase.tsv' \
   $out_dir'/RNA_vals.tsv' \
   $cell \
-  $out_dir'/kmers.tsv'
+  $out_dir'/kmers.tsv' \
+  $out_dir
 """
 
 print >> sys.stderr, "Reading arguments"
@@ -28,6 +29,7 @@ dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
 rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
 train_cell = sys.argv[7] # Duh
 kmer_file = open(sys.argv[8]) # output/kmers.tsv
+out_dir = sys.argv[9]
 
 
 def calc_foot(scores):
@@ -124,6 +126,6 @@ for line in training_chip:
 	
 	last_start = start
 
-pickle.dump(data,open("{}_{}_train.p".format(TF,train_cell),"wb"))
+pickle.dump(data,open(out_dir+"/{}_{}_train.p".format(TF,train_cell),"wb"))
 
 
