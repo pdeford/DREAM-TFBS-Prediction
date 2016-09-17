@@ -18,6 +18,7 @@ python build_train_array.py \
   $out_dir'/kmers.tsv'
 """
 
+print >> sys.stderr, "Reading arguments"
 
 training_chip = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
@@ -55,12 +56,13 @@ def populate(file_object, column, interval, size, column_end=None):
 		fields = line.strip().split()
 		position = fields[0].split(":")
 		if position[0] == chrom:
-			if int(position.split("-")) == start + len(l)*size-(interval-200)/2:
+			if int(position[1].split("-")[0]) == start + len(l)*size-(interval-200)/2:
 				l.append(slicer(fields))
 				if len(l) == interval/size: break
 	return l
 
 
+print >> sys.stderr, "Ready, set..."
 
 header = training_chip.readline().strip().split()
 for i in range(len(header)):
@@ -73,6 +75,7 @@ cell_columns = [i for i,c in enumerate(header) if c==train_cell]
 
 data = []
 
+print >> sys.stderr, "Go!"
 chroms = []
 for line in training_chip:
 
@@ -94,6 +97,7 @@ for line in training_chip:
 				break
 
 	if chrom not in chroms:
+		print >> sys.stderr, "..." + chrom
 		chroms.append(chrom)
 		#for f in [pwm_file, strum_file, dnase_fil, rna_file]: f.seek(0)
 	

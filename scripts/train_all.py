@@ -23,11 +23,12 @@ for line in f:
 			if cell not in all_cells: all_cells.append(cell)
 
 
-for TF in TFs:
+#for TF in TFs:
+for TF in ["ATF7"]:
 	for cell in TFs[TF]["train"]:
 		subprocess.call(
 
-		"""TF=%s; cell=%s; data_dir=%s; out_dir=%s; python build_train_array.py \
+		"""TF=%s; cell=%s; data_dir=%s; out_dir=%s; python scripts/build_train_array.py \
 		$data_dir'/annotations/labels/'$TF'.train.labels.tsv' \
 		$TF \
 		$out_dir'/'$TF'_PWM.tsv' \
