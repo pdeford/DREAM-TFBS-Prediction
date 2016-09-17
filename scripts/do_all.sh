@@ -87,5 +87,10 @@ fi
 #============================================================
 # CREATE THE ARRAYS FOR TRAINING THE MODELS
 
-python train_all.py $data_dir $out_dir
+python scripts/train_all.py $data_dir $out_dir
 
+#============================================================
+# GET PROBABILITIES FOR ALL MODELS
+
+python scripts/eval_all.py $data_dir $out_dir
+gzip $out_dir'/'*'.'*'.'*'.tab'
