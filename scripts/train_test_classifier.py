@@ -84,6 +84,9 @@ for clf in clfs:
 n = np.argmax(scores)
 best_clf = clfs[n]
 best_clf.fit(X)
+
+pickle.dump(best_clf, open("%s_clf.p" % TF,"wb"))
+
 print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n]/kfold, best_clf, best_clf.get_params())
 
 del X, Y, training_arrays
