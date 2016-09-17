@@ -11,7 +11,7 @@ pwm_file = open(sys.argv[3]) # output/TF_PWM.tsv
 strum_file = open(sys.argv[4]) # output/TF_StruM.tsv
 dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
 rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
-train_cell = sys.argv[7] # Duh
+test_cell = sys.argv[7] # Duh
 kmer_file = open(sys.argv[8]) # output/kmers.tsv
 training_arrays = np.vstack([pickle.load(open(x)) for x in sys.argv[9:]])
 
@@ -129,7 +129,7 @@ def populate(file_object, column, interval, size, column_end=None):
 
 
 header = rna_file.readline().strip().split()
-cell_columns = [i for i,c in enumerate(header) if c==train_cell]
+cell_columns = [i for i,c in enumerate(header) if c==test_cell]
 
 data = []
 
