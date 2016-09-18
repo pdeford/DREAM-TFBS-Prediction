@@ -121,7 +121,7 @@ for line in training_chip:
 		P_FOOT = calc_foot(PWM)
 		S_FOOT = calc_foot(STRUM)
 
-	row = Y + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+	row = [Y] + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
 	data.append(row)
 	
 	last_start = start
