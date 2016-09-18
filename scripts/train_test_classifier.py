@@ -143,14 +143,14 @@ for line in regions:
 		for rna_line in rna_file:
 		rna_fields = rna_line.strip().split()
 		if rna_fields[0] == chrom:
-			if (int(rna_fields[1])+int(rna_fields[2]))/2 == mid:
+			if int(rna_fields[1]) == mid:
 				#RNA = [float(x) for x in rna_fields[3:]]
 				RNA = [float(rna_fields[i]) for i in cell_columns]
 				break
 
 	if chrom not in chroms:
 		chroms.append(chrom)
-		#for f in [pwm_file, strum_file, dnase_fil, rna_file]: f.seek(0)
+		for f in [pwm_file, strum_file, dnase_file, rna_file]: f.seek(0)
 	
 		DNASE  = populate(dnase_file, 4, 500, 25)
 		PWM    = populate(pwm_file, 7, 500, 25)
