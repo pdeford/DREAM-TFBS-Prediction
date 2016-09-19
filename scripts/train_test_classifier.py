@@ -24,7 +24,7 @@ n_cores = cpu_count()
 # PREPROCESS ARRAY
 print >> sys.stderr, "Loading training data"
 
-training_arrays = np.vstack([pd.HDF5Store(x)['data'] for x in training_arrays])
+training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
 
 Y = training_arrays[:,0]
 training_arrays = np.delete(training_arrays,0,1)
