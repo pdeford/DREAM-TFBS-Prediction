@@ -172,7 +172,7 @@ def wrapper(start_stop):
 		chrom, start, end = fields[0], int(fields[1]), int(fields[2])
 		mid = (start+end)/2
 
-			for rna_line in rna_file:
+		for rna_line in rna_file:
 			rna_fields = rna_line.strip().split()
 			if rna_fields[0] == chrom:
 				if int(rna_fields[1]) == mid:
