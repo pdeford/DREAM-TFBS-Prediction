@@ -73,6 +73,7 @@ def wrapper(start_stop):
 	kmer_file = open(sys.argv[8]) # output/kmers.tsv
 	
 	training_chip.seek(f_start)
+	f_pos = f_start
 
 	data = []
 
