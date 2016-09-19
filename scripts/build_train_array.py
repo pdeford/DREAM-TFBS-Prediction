@@ -160,18 +160,13 @@ def wrapper(start_stop):
 		
 		last_start = start
 
-	return data
+	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
+	store = pd.HDFStore(name)
+	store['data'] = pd.DataFrame(data)
+	store.close()
+	return name
 
 print >> sys.stderr, "Go!"
-
-thing = [(positions[i],positions[i+1]) for i in range(len(positions)-1)]
-for stuff in thing:
-	print stuff
-
-print len(thing)
-
-quit()
-
 
 pool = Pool(n_cores)
 data = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len(positions)-1)])
@@ -179,7 +174,7 @@ pool.close()
 pool.join()
 
 print >> sys.stderr, "Done, compiling"
-data = pd.DataFrame(np.vstack(data))
+data = pd.DataFrame(np.vstack([pd.HDFStore(name)['data'] for name in data]))
 
 print >>sys.stderr, "Saving"
 store = pd.HDFStore(out_dir+"/{}_{}_train.h5".format(TF,train_cell))
