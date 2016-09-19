@@ -36,20 +36,7 @@ out_dir = sys.argv[9]
 def calc_foot(scores):
 	return [(DNASE[i-2]+DNASE[i+2])/2-DNASE[i] * scores[i] for i in range(2,len(DNASE)-2)]
 
-def populate(file_object, column, interval, size, column_end=None):
-	if column_end is None: slicer = lambda x:float(x[column])
-	elif column_end is True: slicer = lambda x:[float(f) for f in x[column:]]
-	else: slicer = lambda x:[float(f) for f in x[column:column_end]]
 
-	l = []
-	for line in file_object:
-		fields = line.strip().split()
-		position = fields[0].split(":")
-		if position[0] == chrom:
-			if int(position[1].split("-")[0]) == start + len(l)*size-(interval-200)/2:
-				l.append(slicer(fields))
-				if len(l) == interval/size: break
-	return l
 
 print >> sys.stderr, "Ready, set..."
 
@@ -67,6 +54,20 @@ data = []
 print >> sys.stderr, "Go!"
 
 def wrapper(line):
+	def populate(file_object, column, interval, size, column_end=None):
+		if column_end is None: slicer = lambda x:float(x[column])
+		elif column_end is True: slicer = lambda x:[float(f) for f in x[column:]]
+		else: slicer = lambda x:[float(f) for f in x[column:column_end]]
+
+		l = []
+		for line in file_object:
+			fields = line.strip().split()
+			position = fields[0].split(":")
+			if position[0] == chrom:
+				if int(position[1].split("-")[0]) == start + len(l)*size-(interval-200)/2:
+					l.append(slicer(fields))
+					if len(l) == interval/size: break
+		return l
 	pwm_file = open(sys.argv[3]) # output/TF_PWM.tsv
 	strum_file = open(sys.argv[4]) # output/TF_StruM.tsv
 	dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
