@@ -132,7 +132,7 @@ def wrapper(start_stop):
 					break
 
 		if chrom not in chroms:
-			print >> sys.stderr, "..." + chrom
+			#print >> sys.stderr, "..." + chrom
 			chroms.append(chrom)
 			for f in [pwm_file, strum_file, dnase_file, rna_file]: f.seek(0)
 		
