@@ -77,7 +77,7 @@ def wrapper(line):
 	chrom, start, end, bound = fields[0], int(fields[1]), int(fields[2]), fields[cell_column] 
 	mid = (start+end)/2
 	
-	if bound == "A": continue
+	if bound == "A": return None
 	if bound == "B": Y = 1
 	else: Y = 0
 
@@ -112,7 +112,11 @@ while True:
 	pool.close()
 	pool.join()
 
-	for row in sub_data: data.append(row)
+	for row in sub_data: 
+		if row is None:
+			pass
+		else:
+			data.append(row)
 
 	if breaker: break
 
