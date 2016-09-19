@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import cPickle as pickle
 from multiprocessing import Pool
+import pandas as pd
 
 """
 Usage:
@@ -126,6 +127,8 @@ while True:
 	if breaker: break
 
 
-pickle.dump(data,open(out_dir+"/{}_{}_train.p".format(TF,train_cell),"wb"))
+#pickle.dump(data,open(out_dir+"/{}_{}_train.p".format(TF,train_cell),"wb"))
 
-
+store = pd.HDFStore(out_dir+"/{}_{}_train.h5".format(TF,train_cell))
+store['data'] = pd.DataFrame(data)
+store.close()
