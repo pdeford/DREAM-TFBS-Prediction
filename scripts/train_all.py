@@ -22,22 +22,26 @@ for line in f:
 		for cell in Round:
 			if cell not in all_cells: all_cells.append(cell)
 
+command = """if [ ! -e %s/%s_%s_train.log ]
+  then
+    TF=%s; cell=%s; data_dir=%s; out_dir=%s; python scripts/build_train_array.py \
+    $data_dir'/annotations/labels/'$TF'.train.labels.tsv' \
+    $TF \
+    $out_dir'/'$TF'_PWM.tsv' \
+    $out_dir'/'$TF'_StruM.tsv' \
+    $out_dir'/'$cell'_DNase.tsv' \
+    $out_dir'/RNA_vals.tsv' \
+    $cell \
+    $out_dir'/kmers.tsv' \
+    $out_dir \
+    > $out_dir'/'$TF'_'$cell_train.log
+fi
+"""
 
 #for TF in TFs:
-for TF in ["ATF7"]:
+for TF in ["ARID3A"]:
 	for cell in TFs[TF]["train"]:
-		subprocess.call(
-
-		"""TF=%s; cell=%s; data_dir=%s; out_dir=%s; python scripts/build_train_array.py \
-		$data_dir'/annotations/labels/'$TF'.train.labels.tsv' \
-		$TF \
-		$out_dir'/'$TF'_PWM.tsv' \
-		$out_dir'/'$TF'_StruM.tsv' \
-		$out_dir'/'$cell'_DNase.tsv' \
-		$out_dir'/RNA_vals.tsv' \
-		$cell \
-		$out_dir'/kmers.tsv' \
-		$out_dir""" % (TF, cell, data_dir, out_dir),
+		subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),
 			shell=True)
 
 
