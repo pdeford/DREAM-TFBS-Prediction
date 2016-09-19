@@ -40,7 +40,7 @@ for TF in ["ATF7"]:
 			$out_dir'/RNA_vals.tsv' \
 			$cell \
 			$out_dir'/kmers.tsv' \
-			$out_dir'/'$TF'_'*'_train.p' \
+			$out_dir'/'$TF'_'*'_train.h5' \
 			> $out_dir'/%s.'$TF'.'$cell'.tab'""" % (TF, cell, data_dir, out_dir, region_file, round,),
 				shell=True)
 
