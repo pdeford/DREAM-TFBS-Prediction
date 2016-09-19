@@ -77,42 +77,42 @@ def lookup_sequence(chrom, start=None, end=None, offsets=None):
 ############################################################
 # TAKE CHIP.BED AND CONVERT TO FASTA, HG19                 #
 ############################################################
-#print "Converting .bed to .fa"
-#
-#offsets = get_offsets()
-#
-#subprocess.call("mkdir %s" % outdir, shell=True)
-#
-#TF_seq_fa = "%s/%s.fa" % (outdir, TF)
-#with open(TF_seq_fa, "wb") as g:
-#	for line in chip:
-#		fields = line.strip().split()
-#		
-#		chrom =     fields[0]
-#		start = int(fields[1])
-#		end   = int(fields[2])
-#
-#		g.write( ">%s:%d-%d\n" % (chrom,start,end,) )
-#		seq = lookup_sequence(chrom,start,end,offsets)
-#		for i in range(0,len(seq),50): g.write(seq[i:i+50].upper() + "\n")
+print "Converting .bed to .fa"
+
+offsets = get_offsets()
+
+subprocess.call("mkdir %s" % outdir, shell=True)
+
+TF_seq_fa = "%s/%s.fa" % (outdir, TF)
+with open(TF_seq_fa, "wb") as g:
+	for line in chip:
+		fields = line.strip().split()
+		
+		chrom =     fields[0]
+		start = int(fields[1])
+		end   = int(fields[2])
+
+		g.write( ">%s:%d-%d\n" % (chrom,start,end,) )
+		seq = lookup_sequence(chrom,start,end,offsets)
+		for i in range(0,len(seq),50): g.write(seq[i:i+50].upper() + "\n")
 
 
 ############################################################
 # RUN MEME ON SEQUENCES TO GET PWM AND MATCHES             #
 ############################################################
-#print "Running MEME-ChIP on training sequences"
-#
-#subprocess.call("mkdir output",shell=True)
-#
-#subprocess.call(
-#	"meme-chip -oc %s/%s_meme -meme-nmotifs 1 -dreme-m 1  %s" % (
-#		outdir,
-#		TF, 
-#		TF_seq_fa
-#		),
-#	shell=True
-#	)
-#
+print "Running MEME-ChIP on training sequences"
+
+subprocess.call("mkdir output",shell=True)
+
+subprocess.call(
+	"meme-chip -oc %s/%s_meme -meme-nmotifs 1 -dreme-m 1  %s" % (
+		outdir,
+		TF, 
+		TF_seq_fa
+		),
+	shell=True
+	)
+
 ############################################################
 # LOAD PWM MEME OUTPUT                                     #
 ############################################################
