@@ -3,11 +3,17 @@
 from __future__ import division
 import sys
 import numpy as np
-import cPickle as pickle
+import pandas as pd
 
 """
 Usage:
-python build_train_array.py \
+
+out_dir=/cache/DREAM-tfbs-pred/out/
+data_dir=/cache/DREAM-tfbs-pred/
+TF=ATF7
+cell=K562
+
+python build_train_array2.py \
   $data_dir'/annotations/labels/'$TF'.train.labels.tsv' \
   $TF \
   $out_dir'/'$TF'_PWM.tsv' \
@@ -126,6 +132,8 @@ for line in training_chip:
 	
 	last_start = start
 
-pickle.dump(data,open(out_dir+"/{}_{}_train.p".format(TF,train_cell),"wb"))
+store = pd.HDFStore(out_dir+"/{}_{}_train.h5".format(TF,train_cell))
+store['data'] = pd.DataFrame(data)
+store.close()
 
 
