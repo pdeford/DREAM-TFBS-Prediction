@@ -68,6 +68,7 @@ def wrapper(line):
 					l.append(slicer(fields))
 					if len(l) == interval/size: break
 		return l
+
 	pwm_file = open(sys.argv[3]) # output/TF_PWM.tsv
 	strum_file = open(sys.argv[4]) # output/TF_StruM.tsv
 	dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
@@ -106,8 +107,9 @@ while True:
 	breaker = False
 	lines = [training_chip.readline() for i in range(100000)]
 	poppers = [i for i,l in enumerate(lines) if l == ""][::-1]
-	for i in poppers: lines.pop(i)
-	breaker = True
+	for i in poppers: 
+		lines.pop(i)
+		breaker = True
 	pool = Pool()
 	sub_data = pool.map(wrapper, lines)
 	pool.close()
