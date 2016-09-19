@@ -33,8 +33,7 @@ kmer_file = open(sys.argv[8]) # output/kmers.tsv
 out_dir = sys.argv[9]
 
 
-def calc_foot(scores):
-	return [(DNASE[i-2]+DNASE[i+2])/2-DNASE[i] * scores[i] for i in range(2,len(DNASE)-2)]
+
 
 
 
@@ -69,6 +68,9 @@ def wrapper(line):
 					if len(l) == interval/size: break
 		return l
 
+	def calc_foot(scores):
+		return [(DNASE[i-2]+DNASE[i+2])/2-DNASE[i] * scores[i] for i in range(2,len(DNASE)-2)]
+
 	pwm_file = open(sys.argv[3]) # output/TF_PWM.tsv
 	strum_file = open(sys.argv[4]) # output/TF_StruM.tsv
 	dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
@@ -98,9 +100,7 @@ def wrapper(line):
 	P_FOOT = calc_foot(PWM)
 	S_FOOT = calc_foot(STRUM)
 
-	print "From here"
 	row = [Y] + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
-	print "to HERE!"
 
 	return row
 
