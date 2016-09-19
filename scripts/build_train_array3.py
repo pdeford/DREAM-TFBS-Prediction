@@ -111,6 +111,7 @@ def wrapper(start_stop):
 
 	while f_pos < f_stop:
 		line = training_chip.readline()
+		f_pos = training_chip.tell()
 
 		fields = line.strip().split()
 		chrom, start, end, bound = fields[0], int(fields[1]), int(fields[2]), fields[cell_column] 
