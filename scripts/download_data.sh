@@ -33,6 +33,7 @@ mv DNASE.*signal* DNase/signal/
 mv *_regions* annotations/regions/
 gunzip hg19.genome.fa.gz 
 gunzip annotations/labels/*
+gunzip ChIP/conservative/*
 
 # Get and move additional files
 wget "ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz"
