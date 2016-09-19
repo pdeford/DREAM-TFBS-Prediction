@@ -106,7 +106,7 @@ wc_l = sum([1 for line in regions])
 regions.seek(0)
 positions = [regions.tell()]
 n_cores = cpu_count()
-chunk_size = 50000#wc_l//n_cores + 1
+chunk_size = 10000#wc_l//n_cores + 1
 for i in range(0,wc_l, chunk_size): #for i in range(n_cores):
 	for i in range(chunk_size): regions.readline()
 	positions.append(regions.tell())
