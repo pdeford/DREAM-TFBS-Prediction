@@ -50,23 +50,26 @@ while read TF;
 	do
 		if [ ! -e $out_dir'/'$TF'_PWM.wig' ]
 			then
-				# Score PWM at EVERY position genome wide
-				python scripts/PWM_to_wig.py $TF $out_dir'/'$TF'_PWM.p' > $out_dir'/'$TF'_PWM.wig'
+				if [ ! -e $out_dir'/'$TF'_PWM.bw' ]
+					then
+						# Score PWM at EVERY position genome wide
+						python scripts/PWM_to_wig.py $TF $out_dir'/'$TF'_PWM.p' > $out_dir'/'$TF'_PWM.wig'
 
-				# Convert PWM scores to bigWig
-				wigToBigWig $out_dir'/'$TF'_PWM.wig' $data_dir'/annotations/hg19.chrom.sizes' $out_dir'/'$TF'_PWM.bw'
-				rm $out_dir'/'$TF'_PWM.wig'
+						# Convert PWM scores to bigWig
+						wigToBigWig $out_dir'/'$TF'_PWM.wig' $data_dir'/annotations/hg19.chrom.sizes' $out_dir'/'$TF'_PWM.bw'
+						rm $out_dir'/'$TF'_PWM.wig'
 
-				# Score StruM at EVER position genome wide
-				python scripts/StruM_to_wig.py $TF $out_dir'/'$TF'_StruM.p' $out_dir'/'$TF'_PWM.p' $data_dir'/shape/' > $out_dir'/'$TF'_StruM.wig'
+						# Score StruM at EVER position genome wide
+						python scripts/StruM_to_wig.py $TF $out_dir'/'$TF'_StruM.p' $out_dir'/'$TF'_PWM.p' $data_dir'/shape/' > $out_dir'/'$TF'_StruM.wig'
 
-				# Convert PWM scores to bigWig
-				wigToBigWig $out_dir'/'$TF'_StruM.wig' $data_dir'/annotations/hg19.chrom.sizes'  $out_dir'/'$TF'_StruM.bw'
-				rm $out_dir'/'$TF'_StruM.wig'
+						# Convert PWM scores to bigWig
+						wigToBigWig $out_dir'/'$TF'_StruM.wig' $data_dir'/annotations/hg19.chrom.sizes'  $out_dir'/'$TF'_StruM.bw'
+						rm $out_dir'/'$TF'_StruM.wig'
 
-				# Extract data from these files:
-				bigWigAverageOverBed -minMax $out_dir'/'$TF'_PWM.bw'   average_regions.bed $out_dir'/'$TF'_PWM.tsv'
-				bigWigAverageOverBed -minMax $out_dir'/'$TF'_StruM.bw' average_regions.bed $out_dir'/'$TF'_StruM.tsv'
+						# Extract data from these files:
+						bigWigAverageOverBed -minMax $out_dir'/'$TF'_PWM.bw'   average_regions.bed $out_dir'/'$TF'_PWM.tsv'
+						bigWigAverageOverBed -minMax $out_dir'/'$TF'_StruM.bw' average_regions.bed $out_dir'/'$TF'_StruM.tsv'
+				fi
 		fi
 	done < tfs.txt
 
