@@ -43,7 +43,7 @@ gzip $out_dir'/%s.'$TF'.'$cell'.tab'
 for TF in ["ARID3A"]:
 	for round in ["L","F"]:
 		if round == "L": region_file = "ladder_regions.blacklistfiltered.bed"
-	else: region_file = "test_regions.blacklistfiltered.bed"
+		else: region_file = "test_regions.blacklistfiltered.bed"
 		for cell in TFs[TF][round]:
 			subprocess.call(command % (round, TF, cell, data_dir, out_dir, region_file, round, round),
 				shell=True)
