@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import cPickle as pickle
 from multiprocessing import Pool, cpu_count
+import subprocess
 
 regions = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
@@ -206,10 +207,14 @@ def wrapper(start_stop):
 		
 		last_start = start
 
-	return data
+	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,test_cell,f_start)
+	store = pd.HDFStore(name)
+	store['data'] = pd.DataFrame(data)
+	store.close()
+	return name
 
 pool = Pool(n_cores)
-data = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len(positions)-1)])
+data_names = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len(positions)-1)])
 pool.close()
 pool.join()
 
@@ -217,9 +222,10 @@ pool.join()
 # PROCESS THE DATA
 print >> sys.stderr, "Scaling data"
 
-data = np.vstack(data)
+data = np.vstack([pd.HDFStore(name)['data'] for name in data_names])
 data = np.asarray(data)
 data = (data-clean_avg)/clean_std
+for name in data_names: subprocess.call("rm %s" % name, shell=True)
 
 #============================================================
 # SCORE EACH POSITION

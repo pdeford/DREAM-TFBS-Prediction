@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import pandas as pd
 from multiprocessing import Pool, cpu_count
+import subprocess
 
 """
 Usage:
@@ -169,12 +170,13 @@ def wrapper(start_stop):
 print >> sys.stderr, "Go!"
 
 pool = Pool(n_cores)
-data = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len(positions)-1)])
+data_names = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len(positions)-1)])
 pool.close()
 pool.join()
 
 print >> sys.stderr, "Done, compiling"
-data = pd.DataFrame(np.vstack([pd.HDFStore(name)['data'] for name in data]))
+data = pd.DataFrame(np.vstack([pd.HDFStore(name)['data'] for name in data_names]))
+for name in data_names: subprocess.call("rm %s" % name, shell=True)
 
 print >>sys.stderr, "Saving"
 store = pd.HDFStore(out_dir+"/{}_{}_train.h5".format(TF,train_cell))
