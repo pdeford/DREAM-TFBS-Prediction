@@ -3,7 +3,7 @@
 from __future__ import division
 import sys
 import numpy as np
-import pickle
+import cPickle as pickle
 
 regions = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
