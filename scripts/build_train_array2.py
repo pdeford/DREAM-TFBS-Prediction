@@ -98,7 +98,9 @@ def wrapper(line):
 	P_FOOT = calc_foot(PWM)
 	S_FOOT = calc_foot(STRUM)
 
+	print "From here"
 	row = [Y] + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+	print "to HERE!"
 
 	return row
 
