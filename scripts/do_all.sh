@@ -48,7 +48,7 @@ while read TF;
 # Score all motifs at all positions
 while read TF;
 	do
-		if [ ! -e $out_dir'/'$TF'_PWM.wig']
+		if [ ! -e $out_dir'/'$TF'_PWM.wig' ]
 			then
 				# Score PWM at EVERY position genome wide
 				python scripts/PWM_to_wig.py $TF $out_dir'/'$TF'_PWM.p' > $out_dir'/'$TF'_PWM.wig'
@@ -93,4 +93,3 @@ python scripts/train_all.py $data_dir $out_dir
 # GET PROBABILITIES FOR ALL MODELS
 
 python scripts/eval_all.py $data_dir $out_dir
-gzip $out_dir'/'*'.'*'.'*'.tab'
