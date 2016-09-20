@@ -35,7 +35,7 @@ clean_std = np.std(X,axis=0)
 
 X = (X-clean_avg)/clean_std
 
-training_indices = random.sample(range(Y.shape[0]),10**6)
+training_indices = random.sample(range(Y.shape[0]),5*10**6)
 
 #============================================================
 # TRAIN THE MODEL
