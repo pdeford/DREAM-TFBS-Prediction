@@ -38,7 +38,7 @@ def rev_comp(struc):
 	return np.hstack([struc[i:i+p] for i in range(0,len(struc),p)[::-1]])
 
 def scoreStruM(TF,StruM,seq):
-	return np.asarray( [matchStrum(TF,StruM,seq[i:i+(k+1)*p]) for i in range(0,len(seq)-(k+1)*p +1,p)] )
+	return np.asarray( [matchStrum(TF,StruM,seq[i:i+(k)*p]) for i in range(0,len(seq)-(k)*p +1,p)] )
 
 def get_offsets():
 	chrom_path = "/cache/DREAM-tfbs-pred/hg19.genome.fa"
@@ -125,7 +125,7 @@ for chrom_num in [str(i) for i in range(1,23)] + ["X"]:
 	seq = np.hstack(seq)[:stop*p]
 	#scores = scoreStruM(TF,StruM,seq)
 	pool = Pool()
-	scores = pool.map(wrapper2, range(0,stop-k+1,100000-k+1))
+	scores = pool.map(wrapper2, range(0,stop-k,100000-k))
 	pool.close()
 	pool.join()
 
