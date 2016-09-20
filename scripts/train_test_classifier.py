@@ -35,6 +35,8 @@ clean_std = np.std(X,axis=0)
 
 X = (X-clean_avg)/clean_std
 
+training_indices = random.sample(range(Y.shape[0]),10**6)
+
 #============================================================
 # TRAIN THE MODEL
 print >> sys.stderr, "Picking model"
@@ -50,7 +52,7 @@ from sklearn.cross_validation import StratifiedKFold
 
 
 kfold = 5
-skf = StratifiedKFold(Y, n_folds=kfold, shuffle=True, random_state=1104)
+skf = StratifiedKFold(Y[training_indices], n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
 print >> sys.stderr, "CV parameterization of SVC"
@@ -63,7 +65,7 @@ svc_clf = GridSearchCV(
 		},
 	cv=skf,
 	)
-svc_clf.fit(X,Y)
+svc_clf.fit(X[training_indices],Y[training_indices])
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
 
 print >> sys.stderr, "CV parameterization of logit"
@@ -75,7 +77,7 @@ log_clf = GridSearchCV(
 		},
 	cv=skf,
 	)
-log_clf.fit(X,Y)
+log_clf.fit(X[training_indices],Y[training_indices])
 log_clf = logit().set_params(**log_clf.get_params(deep=True))
 
 rfc_clf = RFC(n_estimators=20,)	
@@ -90,8 +92,8 @@ for i,clf in enumerate(clfs):
 	print >> sys.stderr, "..." + clf_names[i],
 	score = 0
 	for train_index, test_index in skf:
-		clf.fit(X[train_index],Y[train_index])
-		score += average_precision_score(Y[test_index],clf.predict_proba(X[test_index]))
+		clf.fit(X[training_indices][train_index],Y[training_indices][train_index])
+		score += average_precision_score(Y[training_indices][test_index],clf.predict_proba(X[training_indices][test_index]))
 	print >> sys.stderr, score/kfold
 	scores.append(score/kfold)
 
