@@ -9,6 +9,7 @@ import numpy as np
 import pickle
 import subprocess
 from multiprocessing import Pool
+import bx.bbi.bigwig_file
 
 TF = sys.argv[1]
 StruM = pickle.load(open(sys.argv[2]))
@@ -84,23 +85,15 @@ def lookup_sequence(chrom, start=None, end=None, offsets=None):
 	return seq
 
 def lookup_seq_structure(shape_dir, chrom, start, end):
-	out = []
-	s = start
-	e = end
 	data = []
 	for f_name in subprocess.check_output(["ls","{}".format(shape_dir)]).split():
-		data.append([])
-		try:
-			for x in subprocess.check_output(["bigWigSummary", "{}/{}".format(shape_dir,f_name), chrom, "{}".format(s), "{}".format(e), "{}".format(e-s), "-type=mean"]).split():
-				if x=="n/a":
-					data[-1].append(0.0)
-				else:
-					data[-1].append(float(x))
-		except:
-			for _ in range(s,e): data[-1].append(0.0)
-	data = np.array(data)
-	out.append(np.ravel(data))
-	return np.hstack(out)
+		bwh = bx.bbi.bigwig_file.BigWigFile(open(shape_dir + "/" + f_name, "rb"))
+		row = bwh.get_as_array(chrom, start, end)
+		row[np.isnan(row)] = 0.0
+		data.append(row)
+
+	data = np.vstack(data)
+	return np.ravel(data)
 
 
 def wrapper1(x):
