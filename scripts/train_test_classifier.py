@@ -54,7 +54,7 @@ skf = StratifiedKFold(Y, n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
 svc_clf = GridSearchCV(
-	SVC(probability=True, n_jobs=-1),
+	SVC(probability=True,),
 	param_grid={
 		'kernel':['rbf','poly'], 
 		'C':[0.01, 0.1, 1.0, 10, 100],
@@ -66,7 +66,7 @@ svc_clf.fit(X,Y)
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
 
 log_clf = GridSearchCV(
-	logit(solver='sag', n_jobs=-1),
+	logit(solver='sag',),
 	param_grid={
 		'penalty':['l1','l2'],
 		'C':[0.01, 0.1, 1.0, 10, 100],
@@ -76,7 +76,7 @@ log_clf = GridSearchCV(
 log_clf.fit(X,Y)
 log_clf = logit().set_params(**log_clf.get_params(deep=True))
 
-rfc_clf = RFC(n_estimators=20,n_jobs=-1)	
+rfc_clf = RFC(n_estimators=20,)	
 gnb_clf = GNB()
 
 # Cross validation to pick the appropriate classifier
