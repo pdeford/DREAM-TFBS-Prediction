@@ -14,8 +14,8 @@ TF = sys.argv[1]
 StruM = pickle.load(open(sys.argv[2]))
 PWM = pickle.load(open(sys.argv[3]))
 shape_dir = sys.argv[4]
-k = PWM.shape[1]
 p = len(subprocess.check_output(["ls",shape_dir]).split())
+k = len(StruM[0])/p
 
 def norm_pdf(x,mu,var):
 	l = (1./np.sqrt(2*np.pi*var))
