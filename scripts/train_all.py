@@ -34,7 +34,7 @@ command = """if [ ! -e %s/%s_%s_train.log ]
     $cell \
     $out_dir'/kmers.tsv' \
     $out_dir \
-    > $out_dir'/'$TF'_'$cell_train.log
+    > $out_dir'/'$TF'_'$cell'_train.log'
 fi
 """
 

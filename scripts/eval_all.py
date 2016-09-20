@@ -25,7 +25,7 @@ for line in f:
 command = """if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab' ]
   then
     TF=%s; cell=%s; data_dir=%s; out_dir=%s; python scripts/train_test_classifier.py \
-    $data_dir'/annotations/regions/%s \
+    $data_dir'/annotations/regions/%s' \
     $TF \
     $out_dir'/'$TF'_PWM.tsv' \
     $out_dir'/'$TF'_StruM.tsv' \
