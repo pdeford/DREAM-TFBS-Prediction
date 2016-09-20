@@ -7,6 +7,7 @@ import pandas as pd
 import cPickle as pickle
 from multiprocessing import Pool, cpu_count
 import subprocess
+import random
 
 regions = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
