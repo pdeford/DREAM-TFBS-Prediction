@@ -43,6 +43,7 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression as logit
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.naive_bayes import GaussianNB as GNB
+from sklearn.grid_search import GridSearchCV
 
 from sklearn.metrics import roc_auc_score, average_precision_score
 from sklearn.cross_validation import StratifiedKFold
