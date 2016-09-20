@@ -55,34 +55,13 @@ def get_offsets():
 
 	return offsets
 
-def lookup_sequence(chrom, start=None, end=None, offsets=None):
-	chrom_path = "/cache/DREAM-tfbs-pred/hg19.genome.fa"
-	
-	with open(chrom_path) as f:
-		if offsets:
-			pos = offsets[chrom]
-		else:
-			while 1:
-				line = f.readline()
-				if line.strip()[1:] == chrom:
-					pos = f.tell()
-					break
-				elif line == "":
-					return None
-		if start is None and end is None:
-			seq = ""
-			f.seek(pos)
-			while 1:
-				line = f.readline().strip()
-				if ">" in line: break
-				seq += line
-		elif not start is None and not end is None:
-			f.seek( start + pos + (start//50) )
-			lines = f.read(end - start + (end-start)//50 + 1)
-			seq = "".join(lines.split("\n"))
-		else: return None
-
-	return seq
+def get_sizes():
+	sizes_path = "/cache/DREAM-tfbs-pred/annotations/hg19.chrom.sizes"
+	sizes = {}
+	for line in open(sizes_path):
+		fields = line.split()
+		sizes[fields[0]] = int(fields[1])
+	return sizes
 
 def lookup_seq_structure(shape_dir, chrom, start, end):
 	data = []
@@ -104,12 +83,13 @@ def wrapper2(i):
 	"""Score every position.."""
 	return scoreStruM(TF,StruM,seq[i*p:(i+100000)*p])
 
-offsets = get_offsets()
+sizes = get_sizes()
 print "track type=wiggle_0"
 for chrom_num in [str(i) for i in range(1,23)] + ["X"]:
 	chrom = "chr" + chrom_num
+	print >> sys.stderr, chrom
 	print "fixedStep chrom={} start=1 step=1".format(chrom)
-	stop = len(lookup_sequence(chrom,offsets=offsets))
+	stop = sizes[chrom]
 	#seq = lookup_seq_structure(shape_dir, chrom, 1, stop)
 	pool = Pool()
 	seq = pool.map(wrapper1,range(0,stop,100000))
