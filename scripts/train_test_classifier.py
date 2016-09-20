@@ -53,6 +53,7 @@ kfold = 5
 skf = StratifiedKFold(Y, n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
+print >> sys.stderr, "CV parameterization of SVC"
 svc_clf = GridSearchCV(
 	SVC(probability=True,),
 	param_grid={
@@ -65,6 +66,7 @@ svc_clf = GridSearchCV(
 svc_clf.fit(X,Y)
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
 
+print >> sys.stderr, "CV parameterization of logit"
 log_clf = GridSearchCV(
 	logit(solver='sag',),
 	param_grid={
@@ -80,14 +82,18 @@ rfc_clf = RFC(n_estimators=20,)
 gnb_clf = GNB()
 
 # Cross validation to pick the appropriate classifier
+print >> sys.stderr, "CV Comparison of clfs"
 clfs = [svc_clf, log_clf, rfc_clf, gnb_clf]
+clf_names = ['svc_clf', 'log_clf', 'rfc_clf', 'gnb_clf']
 scores = []
-for clf in clfs:
+for i,clf in enumerate(clfs):
+	print >> sys.stderr, "..." + clf_names[i],
 	score = 0
 	for train_index, test_index in skf:
 		clf.fit(X[train_index],Y[train_index])
 		score += average_precision_score(Y[test_index],clf.predict_proba(X[test_index]))
-	scores.append(score)
+	print >> sys.stderr, score/kfold
+	scores.append(score/kfold)
 
 n = np.argmax(scores)
 best_clf = clfs[n]
