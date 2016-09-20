@@ -39,7 +39,7 @@ def rev_comp(struc):
 	return np.hstack([struc[i:i+p] for i in range(0,len(struc),p)[::-1]])
 
 def scoreStruM(TF,StruM,seq):
-	return np.asarray( [matchStrum(TF,StruM,seq[i:i+(k+1)*p]) for i in range(0,len(seq)-(k+1)*p +1,p)] )
+	return np.asarray( [matchStrum(TF,StruM,seq[i:i+(k)*p]) for i in range(0,len(seq)-(k+1)*p +1,p)] )
 
 def get_offsets():
 	chrom_path = "/cache/DREAM-tfbs-pred/hg19.genome.fa"
