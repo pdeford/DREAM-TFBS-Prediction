@@ -29,16 +29,23 @@ print >> sys.stderr, "Loading training data"
 #training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
 training_arrays = tables.open_file(training_arrays[0], mode = "r")
 
-Y = training_arrays.root.data.block0_values[:,0]
+Y = training_arrays.root.data.Y
 #training_arrays = np.delete(training_arrays,0,1)
-X = training_arrays.root.data.block0_values[:,1:]
+X = training_arrays.root.data.X
 
-clean_avg = np.average(X, axis=0)
-clean_std = np.std(X,axis=0)
+training_indices = random.sample(range(X.shape[0]),10**5)
 
-X = (X-clean_avg)/clean_std
+X_train = X[training_indices]
+Y_train = Y[training_indices]
 
-training_indices = random.sample(range(Y.shape[0]),5*10**6)
+clean_avg = np.average(X_train, axis=0)
+clean_std = np.std(X_train,axis=0)
+
+def normalize(array):
+	return (array-clean_avg)/clean_std
+
+X_train = normalize(X_train)
+
 
 #============================================================
 # TRAIN THE MODEL
@@ -55,7 +62,7 @@ from sklearn.cross_validation import StratifiedKFold
 
 
 kfold = 5
-skf = StratifiedKFold(Y[training_indices], n_folds=kfold, shuffle=True, random_state=1104)
+skf = StratifiedKFold(Y_train, n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
 """
@@ -69,7 +76,7 @@ svc_clf = GridSearchCV(
 		},
 	cv=skf,
 	)
-svc_clf.fit(X[training_indices],Y[training_indices])
+svc_clf.fit(X_train,Y_train)
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
 
 print >> sys.stderr, "CV parameterization of logit"
@@ -81,7 +88,7 @@ log_clf = GridSearchCV(
 		},
 	cv=skf,
 	)
-log_clf.fit(X[training_indices],Y[training_indices])
+log_clf.fit(X_train,Y_train)
 log_clf = logit().set_params(**log_clf.get_params(deep=True))
 
 rfc_clf = RFC(n_estimators=20,)	
@@ -100,20 +107,22 @@ for i,clf in enumerate(clfs):
 	print >> sys.stderr, "..." + clf_names[i],
 	score = 0
 	for train_index, test_index in skf:
-		clf.fit(X[training_indices][train_index],Y[training_indices][train_index])
-		score += average_precision_score(Y[training_indices][test_index],clf.predict_proba(X[training_indices][test_index])[:,1])
+		clf.fit(X_train[train_index],Y_train[train_index])
+		score += average_precision_score(Y_train[test_index],clf.predict_proba(X_train[test_index])[:,1])
 	print >> sys.stderr, score/kfold
 	scores.append(score/kfold)
 
+del X_train, Y_train
+
 n = np.argmax(scores)
 best_clf = clfs[n]
-best_clf.fit(X)
+best_clf.fit(normalize(X[:],Y[:])
+
+print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n], best_clf, best_clf.get_params())
 
 pickle.dump(best_clf, open("%s_clf.p" % TF,"wb"))
 
-print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n]/kfold, best_clf, best_clf.get_params())
-
-del X, Y, training_arrays
+training_arrays.close()
 
 #============================================================
 # BUILD TEST ARRAY
