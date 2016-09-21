@@ -169,7 +169,7 @@ def wrapper(start_stop):
 	Y = np.array(Y, dtype=np.int)
 	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
 	h5file = tables.open_file(name, mode='w')
-	h5file.create_group(h5file.root, "data", "data")
+	#h5file.create_group(h5file.root, "data", "data")
 	h5file.create_array(h5file.root, 'X', data, 'data')
 	h5file.create_array(h5file.root, 'Y', Y, 'data')
 	h5file.close()
@@ -187,8 +187,8 @@ h5file = tables.open_file(out_dir+"/{}_{}_train.h5".format(TF,train_cell), mode 
 data_group = h5file.create_group(h5file.root, "data", "{} data".format(TF))
 for i,name in enumerate(data_names):
 	h5file2 = tables.open_file(name, mode="r")
-	x = h5file2.root.data.X
-	y = h5file2.root.data.Y
+	x = h5file2.root.X
+	y = h5file2.root.Y
 	if i == 0:
 		X = h5file.create_earray(data_group, 'X', x, [0, x.shape[1]], "matrix values", expectedrows=52000000)
 		Y = h5file.create_earray(data_group, 'Y', y, [0,], "bound values", expectedrows=52000000)
