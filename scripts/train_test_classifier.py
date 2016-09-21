@@ -8,6 +8,7 @@ import cPickle as pickle
 from multiprocessing import Pool, cpu_count
 import subprocess
 import random
+import tables
 
 regions = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
@@ -25,11 +26,12 @@ n_cores = cpu_count()
 # PREPROCESS ARRAY
 print >> sys.stderr, "Loading training data"
 
-training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
+#training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
+training_arrays = tables.open_file(training_arrays[0], mode = "r")
 
-Y = training_arrays[:,0]
-training_arrays = np.delete(training_arrays,0,1)
-X = training_arrays
+Y = training_arrays.root.data.block0_values[:,0]
+#training_arrays = np.delete(training_arrays,0,1)
+X = training_arrays.root.data.block0_values[:,1:]
 
 clean_avg = np.average(X, axis=0)
 clean_std = np.std(X,axis=0)
@@ -92,7 +94,8 @@ clf_names = ['svc_clf', 'log_clf', 'rfc_clf', 'gnb_clf']
 """
 rfc_clf = RFC(n_estimators=20,)	
 clfs = [rfc_clf]
-scores = ["rfc_clf"]
+clf_names = ["rfc_clf"]
+scores = []
 for i,clf in enumerate(clfs):
 	print >> sys.stderr, "..." + clf_names[i],
 	score = 0
