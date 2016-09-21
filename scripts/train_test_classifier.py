@@ -101,7 +101,7 @@ for i,clf in enumerate(clfs):
 	score = 0
 	for train_index, test_index in skf:
 		clf.fit(X[training_indices][train_index],Y[training_indices][train_index])
-		score += average_precision_score(Y[training_indices][test_index],clf.predict_proba(X[training_indices][test_index]))
+		score += average_precision_score(Y[training_indices][test_index],clf.predict_proba(X[training_indices][test_index])[:,1])
 	print >> sys.stderr, score/kfold
 	scores.append(score/kfold)
 
@@ -248,7 +248,7 @@ for name in data_names: subprocess.call("rm %s" % name, shell=True)
 # SCORE EACH POSITION
 print >> sys.stderr, "Scoring"
 
-Y = best_clf.predict_proba(data)
+Y = best_clf.predict_proba(data)[:,1]
 del data
 
 regions.seek(0)
