@@ -116,7 +116,7 @@ del X_train, Y_train
 
 n = np.argmax(scores)
 best_clf = clfs[n]
-best_clf.fit(normalize(X[:],Y[:])
+best_clf.fit(normalize(X[:],Y[:]))
 
 print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n], best_clf, best_clf.get_params())
 
