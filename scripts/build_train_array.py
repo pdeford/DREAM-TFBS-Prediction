@@ -3,9 +3,9 @@
 from __future__ import division
 import sys
 import numpy as np
-import pandas as pd
 from multiprocessing import Pool, cpu_count
 import subprocess
+import tables
 
 """
 Usage:
@@ -78,6 +78,7 @@ def wrapper(start_stop):
 	f_pos = f_start
 
 	data = []
+	Y = []
 
 	chroms = []
 
@@ -121,8 +122,8 @@ def wrapper(start_stop):
 		mid = (start+end)/2
 		
 		if bound == "A": continue
-		if bound == "B": Y = 1
-		else: Y = 0
+		if bound == "B": y = 1
+		else: y = 0
 
 
 		for rna_line in rna_file:
@@ -156,15 +157,22 @@ def wrapper(start_stop):
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
-		row = [Y] + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+
+		Y.append(y)
 		data.append(row)
 		
 		last_start = start
 
+
+	data = np.array(data, dtype=np.float)
+	Y = np.array(Y, dtype=np.int)
 	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
-	store = pd.HDFStore(name)
-	store['data'] = pd.DataFrame(data)
-	store.close()
+	h5file = tables.open_file(name, mode='r')
+	h5file.create_group(h5file.root, "data", "data")
+	h5file.create_array(h5file.root, 'X', data, 'data')
+	h5file.create_array(h5file.root, 'Y', Y, 'data')
+	h5file.close()
 	return name
 
 print >> sys.stderr, "Go!"
@@ -175,12 +183,21 @@ pool.close()
 pool.join()
 
 print >> sys.stderr, "Done, compiling"
-data = pd.DataFrame(np.vstack([pd.HDFStore(name)['data'] for name in data_names]))
-for name in data_names: subprocess.call("rm %s" % name, shell=True)
+h5file = tables.open_file(out_dir+"/{}_{}_train.h5".format(TF,train_cell), mode = "a")
+data_group = h5file.create_group(h5file.root, "data", "{} data".format(TF))
+for i,name in enumerate(data_names):
+	h5file2 = tables.open_file(name, mode="r")
+	x = h5file2.root.data.X
+	y = h5file2.root.data.Y
+	if i == 0:
+		X = h5file.create_earray(data_group, 'X', x, [0, x.shape[1]], "matrix values", expectedrows=52000000)
+		Y = h5file.create_earray(data_group, 'Y', y, [0,], "bound values", expectedrows=52000000)
+	else:
+		X.append(x)
+		Y.append(y)
+	subprocess.call("rm {}".format(name), shell=True)
+	h5file2.close()
 
-print >>sys.stderr, "Saving"
-store = pd.HDFStore(out_dir+"/{}_{}_train.h5".format(TF,train_cell))
-store['data'] = data
 print >> sys.stderr, "Done. Closing"
-store.close()
+h5file.close()
 
