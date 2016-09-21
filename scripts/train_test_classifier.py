@@ -35,7 +35,7 @@ X = training_arrays.root.data.X
 
 training_indices = random.sample(range(X.shape[0]),10**5)
 
-X_train = X[training_indices]
+X_train = X[training_indices,:]
 Y_train = Y[training_indices]
 
 clean_avg = np.average(X_train, axis=0)
