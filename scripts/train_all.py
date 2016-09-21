@@ -41,7 +41,8 @@ fi
 #for TF in TFs:
 for TF in ["ARID3A"]:
 	for cell in TFs[TF]["train"]:
-		subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),
-			shell=True)
+		if cell != "":
+			subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),
+				shell=True)
 
 

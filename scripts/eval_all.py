@@ -45,8 +45,9 @@ for TF in ["ARID3A"]:
 		if round == "L": region_file = "ladder_regions.blacklistfiltered.bed"
 		else: region_file = "test_regions.blacklistfiltered.bed"
 		for cell in TFs[TF][round]:
-			subprocess.call(command % (round, TF, cell, data_dir, out_dir, region_file, round, round),
-				shell=True)
+			if cell != "":
+				subprocess.call(command % (round, TF, cell, data_dir, out_dir, region_file, round, round),
+					shell=True)
 
 
 
