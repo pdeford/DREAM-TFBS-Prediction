@@ -34,8 +34,13 @@ Y = training_arrays.root.data.Y[:]
 X = training_arrays.root.data.X
 
 all_indices = np.asarray(range(Y.shape[0]))
-pos_sample = np.random.shuffle(all_indices[Y==1])[:10000]
-neg_sample = np.random.shuffle(all_indices[Y==0])[:10000]
+pos_sample = all_indices[Y==1]
+neg_sample = all_indices[Y==0]
+
+np.random.shuffle(pos_sample)
+pos_sample = pos_sample[:10000]
+np.random.shuffle(neg_sample)
+neg_sample = neg_sample[:10000]
 
 training_indices = list(np.hstack([pos_sample, neg_sample]))
 del pos_sample, neg_sample, all_indices
