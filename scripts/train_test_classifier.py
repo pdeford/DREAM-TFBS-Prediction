@@ -29,11 +29,16 @@ print >> sys.stderr, "Loading training data"
 #training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
 training_arrays = tables.open_file(training_arrays[0], mode = "r")
 
-Y = training_arrays.root.data.Y
+Y = training_arrays.root.data.Y[:]
 #training_arrays = np.delete(training_arrays,0,1)
 X = training_arrays.root.data.X
 
-training_indices = random.sample(range(X.shape[0]),10**5)
+all_indices = np.asarray(range(Y.shape[0]))
+pos_sample = np.random.shuffle(all_indices[Y==1])[:10000]
+neg_sample = np.random.shuffle(all_indices[Y==0])[:10000]
+
+training_indices = list(np.hstack([pos_sample, neg_sample]))
+del pos_sample, neg_sample, all_indices
 
 X_train = X[training_indices,:]
 Y_train = Y[training_indices]
@@ -45,7 +50,6 @@ def normalize(array):
 	return (array-clean_avg)/clean_std
 
 X_train = normalize(X_train)
-
 
 #============================================================
 # TRAIN THE MODEL
@@ -65,7 +69,7 @@ kfold = 5
 skf = StratifiedKFold(Y_train, n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
-"""
+
 print >> sys.stderr, "CV parameterization of SVC"
 svc_clf = GridSearchCV(
 	SVC(probability=True,),
@@ -98,10 +102,7 @@ gnb_clf = GNB()
 print >> sys.stderr, "CV Comparison of clfs"
 clfs = [svc_clf, log_clf, rfc_clf, gnb_clf]
 clf_names = ['svc_clf', 'log_clf', 'rfc_clf', 'gnb_clf']
-"""
-rfc_clf = RFC(n_estimators=20,)	
-clfs = [rfc_clf]
-clf_names = ["rfc_clf"]
+
 scores = []
 for i,clf in enumerate(clfs):
 	print >> sys.stderr, "..." + clf_names[i],
