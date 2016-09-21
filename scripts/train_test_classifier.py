@@ -56,6 +56,7 @@ kfold = 5
 skf = StratifiedKFold(Y[training_indices], n_folds=kfold, shuffle=True, random_state=1104)
 
 # Learn params
+"""
 print >> sys.stderr, "CV parameterization of SVC"
 svc_clf = GridSearchCV(
 	SVC(probability=True,),
@@ -88,7 +89,10 @@ gnb_clf = GNB()
 print >> sys.stderr, "CV Comparison of clfs"
 clfs = [svc_clf, log_clf, rfc_clf, gnb_clf]
 clf_names = ['svc_clf', 'log_clf', 'rfc_clf', 'gnb_clf']
-scores = []
+"""
+rfc_clf = RFC(n_estimators=20,)	
+clfs = [rfc_clf]
+scores = ["rfc_clf"]
 for i,clf in enumerate(clfs):
 	print >> sys.stderr, "..." + clf_names[i],
 	score = 0
