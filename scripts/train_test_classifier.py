@@ -38,12 +38,11 @@ pos_sample = all_indices[Y==1]
 neg_sample = all_indices[Y==0]
 
 np.random.shuffle(pos_sample)
-pos_sample = pos_sample[:10000]
 np.random.shuffle(neg_sample)
-neg_sample = neg_sample[:10000]
 
-training_indices = list(np.hstack([pos_sample, neg_sample]))
-del pos_sample, neg_sample, all_indices
+training_indices = list(np.hstack([pos_sample[:10000], neg_sample[:10000]]))
+full_train = list(np.hstack([pos_sample[:50000], neg_sample[:50000]]))
+del all_indices
 
 X_train = X[training_indices,:]
 Y_train = Y[training_indices]
@@ -122,7 +121,7 @@ del X_train, Y_train
 
 n = np.argmax(scores)
 best_clf = clfs[n]
-best_clf.fit(normalize(X[:],Y[:]))
+best_clf.fit(normalize(X[[full_train],:],Y[full_train]))
 
 print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n], best_clf, best_clf.get_params())
 
