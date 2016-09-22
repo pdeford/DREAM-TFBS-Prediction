@@ -32,7 +32,7 @@ else:
 	print >> sys.stderr, "Loading training data"
 
 	N1 = 10000
-	N2 = 1000000
+	N2 = 1000000 # 1Mil positive examples (a full cell type's data's worth) and 10Mil neg (1/5 total)
 	n1 = int(N1/len(training_arrays))
 	n2 = int(N2/len(training_arrays))
 
@@ -85,7 +85,7 @@ else:
 	from sklearn.ensemble import RandomForestClassifier as RFC
 	from sklearn.metrics import roc_auc_score, average_precision_score
 
-	best_clf = RFC(n_jobs=-1)
+	best_clf = RFC(n_jobs=-1,n_estimators=50)
 	best_clf.fit(X_train, Y_train)
 	Y2 = best_clf.predict_proba(X_test)[:,1]
 	print >> sys.stderr, best_clf
