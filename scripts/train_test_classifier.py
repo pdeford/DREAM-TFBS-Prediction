@@ -89,7 +89,7 @@ svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
 """
 print >> sys.stderr, "CV parameterization of logit"
 log_clf = GridSearchCV(
-	logit(solver='sag',),
+	logit(),
 	param_grid={
 		'penalty':['l1','l2'],
 		'C':[0.01, 0.1, 1.0, 10, 100],
