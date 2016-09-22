@@ -47,10 +47,12 @@ else:
 	Y_test = []
 
 	for name in training_arrays:
+		print >> sys.stderr, "\t" + name
 		f = tables.open_file(name, mode='r')
 		y = f.root.data.Y[:]
 		x = f.root.data.X
 
+		print >> sys.stderr, "\t...selecting indices"
 		all_indices = np.asarray(range(y.shape[0]))
 		pos_sample = all_indices[y==1]
 		neg_sample = all_indices[y==0]
@@ -61,13 +63,17 @@ else:
 		training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
 		full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
 
+		print >> sys.stderr, "\t...pulling smaller x"
 		X_test.append(x[training_indices,:])
 		Y_test.append(y[training_indices])
+		print >> sys.stderr, "\t...pulling larger x"
 		X_train.append(x[full_train,:])
 		Y_train.append(y[full_train])
+		print >> sys.stderr, "\t...wrapping up"
 		f.close()
 		del y,x,all_indices,pos_sample,neg_sample,training_indices,full_train
 
+	print >> sys.stderr, "...Compiling"
 	X_train = np.vstack(X_train)
 	X_test = np.vstack(X_test)
 	Y_train = np.hstack(Y_train)
