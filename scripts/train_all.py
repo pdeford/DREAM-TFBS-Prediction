@@ -38,8 +38,7 @@ command = """if [ ! -e %s/%s_%s_train.log ]
 fi
 """
 
-#for TF in TFs:
-for TF in ["ARID3A"]:
+for TF in TFs:
 	for cell in TFs[TF]["train"]:
 		if cell != "":
 			subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),

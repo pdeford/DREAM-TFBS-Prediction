@@ -40,8 +40,7 @@ fi;
 gzip $out_dir'/%s.'$TF'.'$cell'.tab'
 """
 
-#for TF in TFs:
-for TF in ["ARID3A"]:
+for TF in TFs:
 	for round in ["L","F"]:
 		if round == "L": region_file = "ladder_regions.blacklistfiltered.bed"
 		else: region_file = "test_regions.blacklistfiltered.bed"
