@@ -99,8 +99,8 @@ log_clf = GridSearchCV(
 	cv=skf,
 	n_jobs=-1
 	)
-log_clf.fit(X_train,Y_train)
-log_clf = logit().set_params(**log_clf.get_params(deep=True))
+#log_clf.fit(X_train,Y_train)
+#log_clf = logit().set_params(**log_clf.get_params(deep=True))
 
 rfc_clf = RFC(n_estimators=20,)	
 gnb_clf = GNB()
