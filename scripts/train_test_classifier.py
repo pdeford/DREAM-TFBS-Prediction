@@ -81,7 +81,7 @@ print >> sys.stderr, "Training model"
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-best_clf = RFC()
+best_clf = RFC(n_jobs=-1)
 best_clf.fit(X_train, Y_train)
 Y2 = best_clf.predict_proba(X_test)[:,1]
 print >> sys.stderr, best_clf
