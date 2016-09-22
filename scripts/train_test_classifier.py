@@ -27,42 +27,52 @@ n_cores = cpu_count()
 # PREPROCESS ARRAY
 print >> sys.stderr, "Loading training data"
 
-#training_arrays = np.vstack([pd.HDFStore(x)['data'] for x in training_arrays])
-training_arrays = tables.open_file(training_arrays[0], mode = "r")
+N1 = 10000
+N2 = 1000000
+n1 = int(N1/len(training_arrays))
+n2 = int(N2/len(training_arrays))
 
-Y = training_arrays.root.data.Y[:]
-#training_arrays = np.delete(training_arrays,0,1)
-X = training_arrays.root.data.X
+X_train = []
+Y_train = []
+X_test = []
+Y_test = []
 
-all_indices = np.asarray(range(Y.shape[0]))
-pos_sample = all_indices[Y==1]
-neg_sample = all_indices[Y==0]
+for name in training_arrays:
+	f = tables.open_file(name, mode='r')
+	y = f.root.data.Y[:]
+	x = f.root.data.X
 
-np.random.shuffle(pos_sample)
-np.random.shuffle(neg_sample)
+	all_indices = np.asarray(range(y.shape[0]))
+	pos_sample = all_indices[y==1]
+	neg_sample = all_indices[y==0]
 
-n1 = 10000
-n2 = 1000000
-training_indices = list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]]))
-full_train = list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]]))
-del all_indices
+	np.random.shuffle(pos_sample)
+	np.random.shuffle(neg_sample)
 
-X_train = X[training_indices,:]
-Y_train = Y[training_indices]
+	training_indices = list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]]))
+	full_train = list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]]))
 
-X_fullTrain = X[full_train,:]
-Y_fullTrain = Y[full_train]
+	X_test.append(x[training_indices,:])
+	Y_test.append(y[training_indices])
+	X_train.append(x[full_train,:])
+	Y_train.append(y[full_train])
+	f.close()
+	del y,x,all_indices,pos_sample,neg_sample,training_indices,full_train
 
+X_train = np.vstack(X_train)
+X_test = np.vstack(X_test)
+Y_train = np.hstack(Y_train)
+Y_test = np.hstack(Y_test)
 
 print >> sys.stderr, "Normalizing data"
-clean_avg = np.average(X_fullTrain, axis=0)
-clean_std = np.std(X_fullTrain,axis=0)
+clean_avg = np.average(X_train, axis=0)
+clean_std = np.std(X_train,axis=0)
 
 def normalize(array):
 	return (array-clean_avg)/clean_std
 
+X_test = normalize(X_test)
 X_train = normalize(X_train)
-X_fullTrain = normalize(X_fullTrain)
 
 #============================================================
 # TRAIN THE MODEL
@@ -72,11 +82,11 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 best_clf = RFC()
-best_clf.fit(X_fullTrain, Y_fullTrain)
-Y2 = best_clf.predict_proba(X_train)[:,1]
+best_clf.fit(X_train, Y_train)
+Y2 = best_clf.predict_proba(X_test)[:,1]
 print >> sys.stderr, best_clf
-print >> sys.stderr, "auPRC:", average_precision_score(Y_train, Y2)
-print >> sys.stderr, "auROC:", roc_auc_score(Y_train, Y2)
+print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
+print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
 
 pickle.dump(best_clf, open("%s_clf.p" % TF,"wb"))
 
