@@ -92,7 +92,8 @@ log_clf = GridSearchCV(
 	logit(),
 	param_grid={
 		'penalty':['l1','l2'],
-		'C':[0.01, 0.1, 1.0, 10, 100],
+		#'C':[0.01, 0.1, 1.0, 10, 100],
+		'C':[0.01, 1.0, 100],
 		},
 	cv=skf,
 	)
@@ -122,7 +123,7 @@ del X_train, Y_train
 
 n = np.argmax(scores)
 best_clf = clfs[n]
-best_clf.fit(normalize(X[full_train,:],Y[full_train]))
+best_clf.fit(normalize(X[full_train,:]),Y[full_train])
 
 print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n], best_clf, best_clf.get_params())
 
