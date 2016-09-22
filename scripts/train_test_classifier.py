@@ -18,7 +18,8 @@ dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
 rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
 test_cell = sys.argv[7] # Duh
 kmer_file = open(sys.argv[8]) # output/kmers.tsv
-training_arrays = sys.argv[9:]
+out_dir = sys.argv[9]
+training_arrays = sys.argv[10:]
 
 n_cores = cpu_count()
 

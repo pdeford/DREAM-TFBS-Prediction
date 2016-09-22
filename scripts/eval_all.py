@@ -33,6 +33,7 @@ command = """if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab' ]
     $out_dir'/RNA_vals.tsv' \
     $cell \
     $out_dir'/kmers.tsv' \
+    $out_dir \
     $out_dir'/'$TF'_'*'_train.h5' \
     > $out_dir'/%s.'$TF'.'$cell'.tab'
 fi;
