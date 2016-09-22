@@ -83,6 +83,7 @@ svc_clf = GridSearchCV(
 		'degree': [3]
 		},
 	cv=skf,
+	n_jobs=-1
 	)
 svc_clf.fit(X_train,Y_train)
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
@@ -96,6 +97,7 @@ log_clf = GridSearchCV(
 		'C':[0.01, 1.0, 100],
 		},
 	cv=skf,
+	n_jobs=-1
 	)
 log_clf.fit(X_train,Y_train)
 log_clf = logit().set_params(**log_clf.get_params(deep=True))
