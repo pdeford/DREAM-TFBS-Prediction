@@ -41,96 +41,42 @@ neg_sample = all_indices[Y==0]
 np.random.shuffle(pos_sample)
 np.random.shuffle(neg_sample)
 
-training_indices = list(np.hstack([pos_sample[:10000], neg_sample[:10000]]))
-full_train = list(np.hstack([pos_sample[:50000], neg_sample[:50000]]))
+n1 = 10000
+n2 = 1000000
+training_indices = list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]]))
+full_train = list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]]))
 del all_indices
 
 X_train = X[training_indices,:]
 Y_train = Y[training_indices]
 
-clean_avg = np.average(X_train, axis=0)
-clean_std = np.std(X_train,axis=0)
+X_fullTrain = X[full_train,:]
+Y_fullTrain = Y[full_train]
+
+
+print >> sys.stderr, "Normalizing data"
+clean_avg = np.average(X_fullTrain, axis=0)
+clean_std = np.std(X_fullTrain,axis=0)
 
 def normalize(array):
 	return (array-clean_avg)/clean_std
 
 X_train = normalize(X_train)
+X_fullTrain = normalize(X_fullTrain)
 
 #============================================================
 # TRAIN THE MODEL
-print >> sys.stderr, "Picking model"
+print >> sys.stderr, "Training model"
 
-from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression as logit
 from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.naive_bayes import GaussianNB as GNB
-from sklearn.grid_search import GridSearchCV
-
 from sklearn.metrics import roc_auc_score, average_precision_score
-from sklearn.cross_validation import StratifiedKFold
 
-
-kfold = 5
-skf = StratifiedKFold(Y_train, n_folds=kfold, shuffle=True, random_state=1104)
-
-# Learn params
-"""
-print >> sys.stderr, "CV parameterization of SVC"
-svc_clf = GridSearchCV(
-	SVC(probability=True,),
-	param_grid={
-		'kernel':['rbf','poly'], 
-		'C':[0.01, 0.1, 1.0, 10, 100],
-		'degree': [3]
-		},
-	cv=skf,
-	n_jobs=-1
-	)
-svc_clf.fit(X_train,Y_train)
-svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
-
-print >> sys.stderr, "CV parameterization of logit"
-log_clf = GridSearchCV(
-	logit(),
-	param_grid={
-		'penalty':['l1','l2'],
-		#'C':[0.01, 0.1, 1.0, 10, 100],
-		'C':[0.01, 1.0, 100],
-		},
-	cv=skf,
-	n_jobs=-1
-	)
-print >> sys.stder, log_clf
-#log_clf.fit(X_train,Y_train)
-"""
-log_clf = logit(C=1.0, penalty='l2')#.set_params(**log_clf.get_params(deep=True)['estimator'])
-
-rfc_clf = RFC(n_estimators=20,)	
-gnb_clf = GNB()
-
-# Cross validation to pick the appropriate classifier
-print >> sys.stderr, "CV Comparison of clfs"
-#clfs = [svc_clf, log_clf, rfc_clf, gnb_clf]
-#clf_names = ['svc_clf', 'log_clf', 'rfc_clf', 'gnb_clf']
-clfs = [log_clf, rfc_clf, gnb_clf]
-clf_names = ['log_clf', 'rfc_clf', 'gnb_clf']
-scores = []
-for i,clf in enumerate(clfs):
-	print >> sys.stderr, "..." + clf_names[i],
-	score = 0
-	for train_index, test_index in skf:
-		clf.fit(X_train[train_index],Y_train[train_index])
-		score += average_precision_score(Y_train[test_index],clf.predict_proba(X_train[test_index])[:,1])
-	print >> sys.stderr, score/kfold
-	scores.append(score/kfold)
-
-del X_train, Y_train
-
-n = np.argmax(scores)
-best_clf = clfs[n]
-best_clf.fit(normalize(X[full_train,:]),Y[full_train])
-
-print >> sys.stderr, "Best classifier:\n\tarPRC: {}\n\tClassifier: {}\n\tParameters: {}".format(scores[n], best_clf, best_clf.get_params())
+best_clf = RFC()
+best_clf.fit(X_fullTrain, Y_fullTrain)
+Y2 = best_clf.predict_proba(X_train)[:,1]
+print >> sys.stderr, best_clf
+print >> sys.stderr, "auPRC:", average_precision_score(Y_train, Y2)
+print >> sys.stderr, "auROC:", roc_auc_score(Y_train, Y2)
 
 pickle.dump(best_clf, open("%s_clf.p" % TF,"wb"))
 
