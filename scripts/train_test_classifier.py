@@ -58,8 +58,8 @@ else:
 		np.random.shuffle(pos_sample)
 		np.random.shuffle(neg_sample)
 
-		training_indices = list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]]))
-		full_train = list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]]))
+		training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
+		full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
 
 		X_test.append(x[training_indices,:])
 		Y_test.append(y[training_indices])
