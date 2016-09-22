@@ -10,6 +10,7 @@ import subprocess
 import random
 import tables
 import os.path
+import time
 
 regions = open(sys.argv[1]) # data/annotations/labels/TF.train.labels.tsv
 TF = sys.argv[2] # Duh
@@ -24,13 +25,17 @@ training_arrays = sys.argv[10:]
 
 n_cores = cpu_count()
 
+def print_time(start,stop):
+	time_taken = stop-start
+	return "%dm %0.2fs" % (time_taken//60, time_taken%60)
+
 if os.path.isfile(out_dir + "/%s_clf.p" % TF):
 	best_clf = pickle.load(open(out_dir + "/%s_clf.p" % TF,"rb"))
 else:
 	#============================================================
 	# PREPROCESS ARRAY
 	print >> sys.stderr, "Loading training data"
-
+	time_start = time.time()
 	N1 = 10000
 	N2 = 1000000 # 1Mil positive examples (a full cell type's data's worth) and 10Mil neg (1/5 total)
 	n1 = int(N1/len(training_arrays))
@@ -67,8 +72,10 @@ else:
 	X_test = np.vstack(X_test)
 	Y_train = np.hstack(Y_train)
 	Y_test = np.hstack(Y_test)
-
+	time_end = time.time()
+	print >> sys.stderr, "-->", print_time(time_start, time_end)
 	print >> sys.stderr, "Normalizing data"
+	time_start = time.time()
 	clean_avg = np.average(X_train, axis=0)
 	clean_std = np.std(X_train,axis=0)
 
@@ -77,10 +84,12 @@ else:
 
 	X_test = normalize(X_test)
 	X_train = normalize(X_train)
-
+	time_end = time.time()
+	print >> sys.stderr, "-->", print_time(time_start, time_end)
 	#============================================================
 	# TRAIN THE MODEL
 	print >> sys.stderr, "Training model"
+	time_start = time.time()
 
 	from sklearn.ensemble import RandomForestClassifier as RFC
 	from sklearn.metrics import roc_auc_score, average_precision_score
@@ -88,9 +97,12 @@ else:
 	best_clf = RFC(n_jobs=-1,n_estimators=50)
 	best_clf.fit(X_train, Y_train)
 	Y2 = best_clf.predict_proba(X_test)[:,1]
+
 	print >> sys.stderr, best_clf
 	print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
 	print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
+	time_end = time.time()
+	print >> sys.stderr, "-->", print_time(time_start, time_end)
 
 	pickle.dump(best_clf, open(out_dir + "/%s_clf.p" % TF,"wb"))
 
@@ -101,6 +113,7 @@ else:
 # BUILD TEST ARRAY
 
 print >> sys.stderr, "Loading test data"
+time_start = time.time()
 
 wc_l = sum([1 for line in regions])
 regions.seek(0)
@@ -218,9 +231,13 @@ data_names = pool.map(wrapper, [(positions[i],positions[i+1]) for i in range(len
 pool.close()
 pool.join()
 
+time_end = time.time()
+print >> sys.stderr, "-->", print_time(time_start, time_end)
+
 #============================================================
 # PROCESS THE DATA
 print >> sys.stderr, "Scaling data"
+time_start = time.time()
 
 #data = np.vstack([pd.HDFStore(name)['data'] for name in data_names])
 data = np.vstack([ tables.open_file(name).root.X[:] for name in data_names ])
@@ -228,9 +245,13 @@ data = np.asarray(data)
 data = (data-clean_avg)/clean_std
 for name in data_names: subprocess.call("rm %s" % name, shell=True)
 
+time_end = time.time()
+print >> sys.stderr, "-->", print_time(time_start, time_end)
+
 #============================================================
 # SCORE EACH POSITION
 print >> sys.stderr, "Scoring"
+time_start = time.time()
 
 Y = best_clf.predict_proba(data)[:,1]
 del data
@@ -241,3 +262,5 @@ for line in regions:
 	print line.strip() + "\t{}".format(Y[count])
 	count += 1
 
+time_end = time.time()
+print >> sys.stderr, "-->", print_time(time_start, time_end)
