@@ -87,7 +87,7 @@ svc_clf = GridSearchCV(
 	)
 svc_clf.fit(X_train,Y_train)
 svc_clf = SVC().set_params(**svc_clf.get_params(deep=True))
-"""
+
 print >> sys.stderr, "CV parameterization of logit"
 log_clf = GridSearchCV(
 	logit(),
@@ -99,9 +99,10 @@ log_clf = GridSearchCV(
 	cv=skf,
 	n_jobs=-1
 	)
-print log_clf
+print >> sys.stder, log_clf
 #log_clf.fit(X_train,Y_train)
-log_clf = logit()#.set_params(**log_clf.get_params(deep=True))
+"""
+log_clf = logit(C=1.0, penalty='l2')#.set_params(**log_clf.get_params(deep=True)['estimator'])
 
 rfc_clf = RFC(n_estimators=20,)	
 gnb_clf = GNB()
@@ -189,7 +190,7 @@ def wrapper(start_stop):
 			fields = line.strip().split()
 			position = fields[0].split(":")
 			if position[0] == chrom:
-				if int(position.split("-")) == start + len(l)*size-(interval-200)/2:
+				if int(position[1].split("-")[0]) == start + len(l)*size-(interval-200)/2:
 					l.append(slicer(fields))
 					if len(l) == interval/size: break
 		return l
@@ -199,8 +200,8 @@ def wrapper(start_stop):
 	cell_columns = [i for i,c in enumerate(header) if c==test_cell]
 
 	data = []
-
 	chroms = []
+
 	while f_pos < f_stop:
 		line = regions.readline()
 		f_pos = regions.tell()
@@ -238,15 +239,16 @@ def wrapper(start_stop):
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
-		row = Y + RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
 		data.append(row)
 		
 		last_start = start
 
 	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,test_cell,f_start)
-	store = pd.HDFStore(name)
-	store['data'] = pd.DataFrame(data)
-	store.close()
+	data = np.array(data, dtype=np.float)
+	h5file = tables.open_file(name, mode='w')
+	h5file.create_array(h5file.root, 'X', data, 'data')
+	h5file.close()
 	return name
 
 pool = Pool(n_cores)
@@ -258,7 +260,8 @@ pool.join()
 # PROCESS THE DATA
 print >> sys.stderr, "Scaling data"
 
-data = np.vstack([pd.HDFStore(name)['data'] for name in data_names])
+#data = np.vstack([pd.HDFStore(name)['data'] for name in data_names])
+data = np.vstack([ tables.open_file(name).root.X[:] for name in data_names ])
 data = np.asarray(data)
 data = (data-clean_avg)/clean_std
 for name in data_names: subprocess.call("rm %s" % name, shell=True)
