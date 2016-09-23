@@ -50,18 +50,20 @@ else:
 		print >> sys.stderr, "\t" + name
 		f = tables.open_file(name, mode='r')
 		y = f.root.data.Y[:]
-		x = f.root.data.X
+		x = f.root.data.X[:]
 
 		print >> sys.stderr, "\t...selecting indices"
 		all_indices = np.asarray(range(y.shape[0]))
 		pos_sample = all_indices[y==1]
 		neg_sample = all_indices[y==0]
+		print >> sys.stderr, "\t\t", pos_sample.shape, neg_sample.shape
 
 		np.random.shuffle(pos_sample)
 		np.random.shuffle(neg_sample)
 
 		training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
 		full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
+		print >> sys.stderr, "\t\t", len(training_indices), len(full_train)
 
 		print >> sys.stderr, "\t...pulling smaller x"
 		X_test.append(x[training_indices,:])
@@ -112,7 +114,6 @@ else:
 
 	pickle.dump(best_clf, open(out_dir + "/%s_clf.p" % TF,"wb"))
 
-	training_arrays.close()
 	del X_train, X_test, Y_train, Y_test
 
 #============================================================
