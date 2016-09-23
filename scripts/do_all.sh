@@ -97,7 +97,7 @@ if [ ! -e $out_dir'/kmers.tsv' ]
 	then
 		echo "=================================================="
 		echo "COUNTING KMERS"
-		python scripts/count_kmers.py average_regions.bed >  $out_dir'/kmers.tsv'
+		python scripts/count_kmers.py average_regions.bed 5 >  $out_dir'/kmers.tsv'
 fi
 
 
