@@ -157,7 +157,7 @@ def wrapper(start_stop):
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
-		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0))
+		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
 
 		Y.append(y)
 		data.append(row)
