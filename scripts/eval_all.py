@@ -41,6 +41,8 @@ gzip $out_dir'/%s.'$TF'.'$cell'.tab'
 """
 
 for TF in TFs:
+	if sum( [1 for cell in TFs[TF]["F"] if cell != ""] ) == 0:
+		continue
 	for round in ["L","F"]:
 		if round == "L": region_file = "ladder_regions.blacklistfiltered.bed"
 		else: region_file = "test_regions.blacklistfiltered.bed"
