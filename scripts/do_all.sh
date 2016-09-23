@@ -15,6 +15,8 @@ source activate DREAM-TFBS
 
 if [ ! -e $data_dir'/hg19.genome.fa' ]
 	then
+		echo "=================================================="
+		echo "DOWNLOADING DATA"
 		bash scripts/download_data.sh
 fi
 
@@ -24,19 +26,25 @@ fi
 # Create windows to analyze
 if [ ! -e 'average_regions.bed']
 	then
+		echo "=================================================="
+		echo "EXTRACTING WINDOWS"
 		python scripts/write_bed.py $data_dir'/annotations/regions/test_regions.blacklistfiltered.merged.bed' 'average_regions.bed'
 fi
 
 # Prepare the DNase files
 if [ ! -e $out_dir'/HepG2_DNase.tsv']
-	then	
+	then
+		echo "=================================================="
+		echo "PROCESSING DNASE"
 		python scripts/do_DNase.py $data_dir'/DNase/signal/' $out_dir
 fi
 
 # Learn all of the motifs
 cut -f1 TF_cellTypes.txt | tail -n+2 > tfs.txt
 
-while read TF; 
+echo "=================================================="
+echo "EXTRACTING MOTIFS"
+while read TF;
 	do 
 		if [ ! -d $out_dir'/'$TF'_meme' ]
 			then
@@ -46,6 +54,8 @@ while read TF;
 
 
 # Score all motifs at all positions
+echo "=================================================="
+echo "SCORING MOTIFS"
 while read TF;
 	do
 		if [ ! -e $out_dir'/'$TF'_PWM.wig' ]
@@ -77,22 +87,28 @@ while read TF;
 # Find the closest 5-genes to every 50bp window, and pull out their avg. FPKM in all cell types
 if [ ! -e $out_dir'/RNA_vals.tsv' ]
 	then
+		echo "=================================================="
+		echo "PROCESSING RNA"
 		python scripts/RNA_closest.py $data_dir'/annotations/gencode.v19.annotation.gtf' $data_dir'/RNAseq/' $data_dir'/annotations/hg19.chrom.sizes' > $out_dir'/RNA_vals.tsv'
 fi
 
 # Count kmers in every position
 if [ ! -e $out_dir'/kmers.tsv' ]
 	then
+		echo "=================================================="
+		echo "COUNTING KMERS"
 		python scripts/count_kmers.py average_regions.bed >  $out_dir'/kmers.tsv'
 fi
 
 
 #============================================================
 # CREATE THE ARRAYS FOR TRAINING THE MODELS
-
+echo "=================================================="
+echo "EXTRACTING TRAINING DATA"
 python scripts/train_all.py $data_dir $out_dir
 
 #============================================================
 # GET PROBABILITIES FOR ALL MODELS
-
+echo "=================================================="
+echo "TRAINING MODELS AND GENERATING PREDICTIONS"
 python scripts/eval_all.py $data_dir $out_dir
