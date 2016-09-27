@@ -226,7 +226,8 @@ def wrapper(start_stop):
 		
 		last_start = start
 
-	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,test_cell,f_start)
+	#name = out_dir+"/{}_{}_inter_{}.h5".format(TF,test_cell,f_start)
+	name = "/localscratch/pd/{}_{}_inter_{}.h5".format(TF,test_cell,f_start)
 	data = np.array(data, dtype=np.float)
 	h5file = tables.open_file(name, mode='w')
 	h5file.create_array(h5file.root, 'X', data, 'data')

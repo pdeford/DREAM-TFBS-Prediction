@@ -167,7 +167,8 @@ def wrapper(start_stop):
 
 	data = np.array(data, dtype=np.float)
 	Y = np.array(Y, dtype=np.int)
-	name = out_dir+"/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
+	#name = out_dir+"/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
+	name = "/localscratch/pd/{}_{}_inter_{}.h5".format(TF,train_cell,f_start)
 	h5file = tables.open_file(name, mode='w')
 	#h5file.create_group(h5file.root, "data", "data")
 	h5file.create_array(h5file.root, 'X', data, 'data')
