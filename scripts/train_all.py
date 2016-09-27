@@ -41,7 +41,7 @@ fi
 for TF in TFs:
 	if sum( [1 for cell in TFs[TF]["test"] if cell != ""] ) == 0:
 		continue
-	for cell in TFs[TF]["train"]:
+	for cell in TFs[TF]["train"][:2]:
 		if cell != "":
 			subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),
 				shell=True)
