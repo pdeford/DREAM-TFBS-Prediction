@@ -49,7 +49,8 @@ else:
 	for name in training_arrays:
 		print >> sys.stderr, "\t" + name
 		subprocess.call("cp {} /localscratch/pd/".format(name),shell=True)
-		f = tables.open_file("/localscratch/pd/" + name.split("/")[-1], mode='r')
+		new_name = "/localscratch/pd/" + name.split("/")[-1]
+		f = tables.open_file(new_name, mode='r')
 		y = f.root.data.Y[:]
 		x = f.root.data.X[:]
 
@@ -75,6 +76,7 @@ else:
 		print >> sys.stderr, "\t...wrapping up"
 		f.close()
 		del y,x,all_indices,pos_sample,neg_sample,training_indices,full_train
+		subprocess.call("rm {}".format(new_name),shell=True)
 
 	print >> sys.stderr, "...Compiling"
 	X_train = np.vstack(X_train)
