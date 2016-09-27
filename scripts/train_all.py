@@ -39,7 +39,7 @@ fi
 """
 
 for TF in TFs:
-	if sum( [1 for cell in TFs[TF]["F"] if cell != ""] ) == 0:
+	if sum( [1 for cell in TFs[TF]["test"] if cell != ""] ) == 0:
 		continue
 	for cell in TFs[TF]["train"]:
 		if cell != "":
