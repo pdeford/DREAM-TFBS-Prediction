@@ -39,6 +39,8 @@ fi
 """
 
 for TF in TFs:
+	if sum( [1 for cell in TFs[TF]["F"] if cell != ""] ) == 0:
+		continue
 	for cell in TFs[TF]["train"]:
 		if cell != "":
 			subprocess.call(command % (out_dir, TF, cell, TF, cell, data_dir, out_dir),
