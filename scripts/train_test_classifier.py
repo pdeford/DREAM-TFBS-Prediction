@@ -48,7 +48,8 @@ else:
 
 	for name in training_arrays:
 		print >> sys.stderr, "\t" + name
-		f = tables.open_file(name, mode='r')
+		subprocess.call("cp {} /localscratch/pd/".format(name),shell=True)
+		f = tables.open_file("/localscratch/pd/" + name.split("/")[-1], mode='r')
 		y = f.root.data.Y[:]
 		x = f.root.data.X[:]
 

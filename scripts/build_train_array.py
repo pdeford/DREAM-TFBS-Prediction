@@ -184,7 +184,9 @@ pool.close()
 pool.join()
 
 print >> sys.stderr, "Done, compiling"
-h5file = tables.open_file(out_dir+"/{}_{}_train.h5".format(TF,train_cell), mode = 'w')
+f_name1 = out_dir+"/{}_{}_train.h5".format(TF,train_cell)
+f_name2 = "/localscratch/pd/{}_{}_train.h5".format(TF,train_cell)
+h5file = tables.open_file(f_name2, mode = 'w')
 data_group = h5file.create_group(h5file.root, "data", "{} data".format(TF))
 for i,name in enumerate(data_names):
 	h5file2 = tables.open_file(name, mode="r")
@@ -197,7 +199,7 @@ for i,name in enumerate(data_names):
 	Y.append(y)
 	h5file2.close()
 	subprocess.call("rm {}".format(name), shell=True)
-	
+subprocess.call("mv {} {}".format(f_name2, f_name1), shell=True)
 
 print >> sys.stderr, "Done. Closing"
 h5file.close()
