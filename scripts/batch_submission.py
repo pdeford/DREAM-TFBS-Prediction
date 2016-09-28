@@ -19,7 +19,9 @@ submission_files = opts['SUBMISSIONFILES']
 # 
 print('Logging in.')
 syn = synapseclient.Synapse()
-syn.login() 
+email = raw_input("Please enter Synapse Email: ")
+password = raw_input("Password: ")
+syn.login(email = email, password = password)
 
 # 
 # Our project 
