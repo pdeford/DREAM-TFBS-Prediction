@@ -7,6 +7,7 @@ doc = """Usage: make-submissions SUBMISSIONFILES..."""
 from docopt import docopt
 import synapseclient
 from synapseclient import File
+import getpass
 
 # 
 # Parse options
@@ -20,7 +21,7 @@ submission_files = opts['SUBMISSIONFILES']
 print('Logging in.')
 syn = synapseclient.Synapse()
 email = raw_input("Please enter Synapse Email: ")
-password = raw_input("Password: ")
+password = getpass.getpass("Password: ")
 syn.login(email = email, password = password)
 
 # 
