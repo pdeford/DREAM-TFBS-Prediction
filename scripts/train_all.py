@@ -38,7 +38,7 @@ command = """if [ ! -e %s/%s_%s_train.log ]
 fi
 """
 
-for TF in sorted(TFs.kerys()):
+for TF in sorted(TFs.keys()):
 	if sum( [1 for cell in TFs[TF]["test"] if cell != ""] ) == 0:
 		continue
 	for cell in TFs[TF]["train"][:2]:
