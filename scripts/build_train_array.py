@@ -143,7 +143,7 @@ def wrapper(start_stop):
 			PWM    = populate(pwm_file, 7, 500, 25)
 			STRUM  = populate(strum_file, 7, 500, 25)
 			#KMERS  = populate(kmer_file, 1, 500, 25,True)
-			P_FOOT = calc_foot(PWM)
+			P_FOOT = calc_foot([np.log2(x) for x in PWM])
 			S_FOOT = calc_foot(STRUM)
 		else:
 			interval = start-last_start
@@ -154,11 +154,12 @@ def wrapper(start_stop):
 			update_data(strum_file, 7, STRUM, mult25)
 			#update_data(kmer_file, 1, KMERS, mult25, True)
 			
-			P_FOOT = calc_foot(PWM)
+			P_FOOT = calc_foot([np.log2(x) for x in PWM])
 			S_FOOT = calc_foot(STRUM)
 
+		pwm2 = [np.log2(x) for x in PWM]
 		#row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
-                row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		row = RNA + DNASE + pwm2 + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(pwm2), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
 
 		Y.append(y)
 		data.append(row)
