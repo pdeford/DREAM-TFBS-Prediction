@@ -142,7 +142,7 @@ def wrapper(start_stop):
 			DNASE  = populate(dnase_file, 4, 500, 25)
 			PWM    = populate(pwm_file, 7, 500, 25)
 			STRUM  = populate(strum_file, 7, 500, 25)
-			KMERS  = populate(kmer_file, 1, 500, 25,True)
+			#KMERS  = populate(kmer_file, 1, 500, 25,True)
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 		else:
@@ -152,12 +152,13 @@ def wrapper(start_stop):
 			update_data(dnase_file, 4, DNASE, mult25)
 			update_data(pwm_file, 7, PWM, mult25) 
 			update_data(strum_file, 7, STRUM, mult25)
-			update_data(kmer_file, 1, KMERS, mult25, True)
+			#update_data(kmer_file, 1, KMERS, mult25, True)
 			
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
-		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		#row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+                row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
 
 		Y.append(y)
 		data.append(row)
@@ -186,7 +187,7 @@ pool.join()
 print >> sys.stderr, "Done, compiling"
 f_name1 = out_dir+"/{}_{}_train.h5".format(TF,train_cell)
 f_name2 = "/localscratch/pd/{}_{}_train.h5".format(TF,train_cell)
-h5file = tables.open_file(f_name2, mode = 'w')
+h5file = tables.open_file(f_name1, mode = 'w')
 data_group = h5file.create_group(h5file.root, "data", "{} data".format(TF))
 for i,name in enumerate(data_names):
 	h5file2 = tables.open_file(name, mode="r")
@@ -199,7 +200,7 @@ for i,name in enumerate(data_names):
 	Y.append(y)
 	h5file2.close()
 	subprocess.call("rm {}".format(name), shell=True)
-subprocess.call("mv {} {}".format(f_name2, f_name1), shell=True)
+#subprocess.call("mv {} {}".format(f_name2, f_name1), shell=True)
 
 print >> sys.stderr, "Done. Closing"
 h5file.close()
