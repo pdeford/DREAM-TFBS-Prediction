@@ -37,7 +37,7 @@ else:
 	print >> sys.stderr, "Loading training data"
 	time_start = time.time()
 	N1 = 100000
-	N2 = 1000000 # 1Mil positive examples (a full cell type's data's worth) and 10Mil neg (1/5 total)
+	N2 = 10000000 # 1Mil positive examples (a full cell type's data's worth) and 10Mil neg (1/5 total)
 	n1 = int(N1/len(training_arrays))
 	n2 = int(N2/len(training_arrays))
 
@@ -69,11 +69,11 @@ else:
 		np.random.shuffle(all_indices)
 		#training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
 		#full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
-		training_indices = sorted(list(all_indices[:n1]))
+		training_indices = (list(all_indices[:n1]))
 		pos_sample = list(pos_sample[~np.in1d(pos_sample, training_indices)])
 		neg_sample = list(neg_sample[~np.in1d(neg_sample, training_indices)])
 		left = n2 - len(pos_sample)
-		#full_train = sorted(list(all_indices[n1:n1+n2]))
+		#full_train = (list(all_indices[n1:n1+n2]))
 		full_train = sorted(pos_sample + neg_sample[:left])
 		print >> sys.stderr, "\t\t", len(training_indices), len(full_train)
 		
@@ -119,14 +119,26 @@ else:
 	from sklearn.metrics import roc_auc_score, average_precision_score
 	from sklearn.svm import SVC
 	from sklearn.linear_model import LogisticRegression as logit
-	n_est = 200
-	best_clf = RFC(n_jobs=-1, n_estimators=n_est)]
+	n_est = 50
+	best_clf = RFC(n_jobs=-1, n_estimators=n_est, min_samples_leaf=1, min_samples_split=2)
 	#best_clf = RFC(n_jobs=-1,n_estimators=50)
 	#best_clf = SVC(probability=True)
 	#n_est = 100
 	#best_clf = BaggingClassifier(SVC(probability=True), n_estimators=n_est, n_jobs=-1, max_samples=25000)
 	#best_clf = logit()
 	best_clf.fit(X_train, Y_train)
+	scores = []
+	clfs = []
+	for min_leaf in [1]:
+		for min_split in [2]:
+			clf = RFC(n_jobs=-1, n_estimators=n_est, min_samples_leaf=min_leaf, min_samples_split=min_split)
+			Y2 = clf.fit(X_train, Y_train).predict_proba(X_test)[:,1]
+			scores.append(average_precision_score(Y_test, Y2)) 
+			print >> sys.stderr, "Using parameters", min_leaf, min_split
+			print >> sys.stderr, "auPRC:", scores[-1] 
+			print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
+			clfs.append(clf)
+	best_clf = clfs[np.argmax(scores)]
 	Y2 = best_clf.predict_proba(X_test)[:,1]
 
 	print >> sys.stderr, best_clf
@@ -135,6 +147,7 @@ else:
 
 	time_end = time.time()
 	print >> sys.stderr, "-->", print_time(time_start, time_end)
+	#quit()
 	pickle.dump(best_clf, open(out_dir + "/%s_clf.p" % (TF,),"wb"))
 
 	del X_train, X_test, Y_train, Y_test
