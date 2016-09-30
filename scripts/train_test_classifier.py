@@ -119,29 +119,26 @@ else:
 	from sklearn.metrics import roc_auc_score, average_precision_score
 	from sklearn.svm import SVC
 	from sklearn.linear_model import LogisticRegression as logit
-	clfs = []
 	n_est = 200
-	for best_clf in [RFC(n_jobs=-1, n_estimators=n_est)]: #, BaggingClassifier(SVC(probability=True), n_estimators=n_est, n_jobs=-1, max_samples=10000), logit()]:
+	best_clf = RFC(n_jobs=-1, n_estimators=n_est)]
 	#best_clf = RFC(n_jobs=-1,n_estimators=50)
 	#best_clf = SVC(probability=True)
 	#n_est = 100
 	#best_clf = BaggingClassifier(SVC(probability=True), n_estimators=n_est, n_jobs=-1, max_samples=25000)
 	#best_clf = logit()
-		best_clf.fit(X_train, Y_train)
-		Y2 = best_clf.predict_proba(X_test)[:,1]
+	best_clf.fit(X_train, Y_train)
+	Y2 = best_clf.predict_proba(X_test)[:,1]
 
-		print >> sys.stderr, best_clf
-		print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
-		print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
-		clfs.append(best_clf)
+	print >> sys.stderr, best_clf
+	print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
+	print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
 
 	time_end = time.time()
 	print >> sys.stderr, "-->", print_time(time_start, time_end)
-	pickle.dump(best_clf, open(out_dir + "/%s_clf_.p" % (TF,),"wb"))
+	pickle.dump(best_clf, open(out_dir + "/%s_clf.p" % (TF,),"wb"))
 
 	del X_train, X_test, Y_train, Y_test
 
-quit()
 #============================================================
 # BUILD TEST ARRAY
 
@@ -166,11 +163,21 @@ def wrapper(start_stop):
 	dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
 	rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
 	kmer_file = open(sys.argv[8]) # output/kmers.tsv
+	round = sys.argv[1].split("/")[-1].split("_")[0]
+	dnase_file2 = open(out_dir + sys.argv[5].split("/")[-1].split("_")[0] + "_DNASE_intersect_{}.out".format(round))
 
 	f_start = start_stop[0]
 	f_stop = start_stop[1]
 	f_pos = f_start
 	regions.seek(f_start)
+	first_line = regions.readline()
+	d_pos = dnase_file2.tell()
+	d2_line = dnase_file2.readline()
+	while d2_line.split()[:3] != first_line.split()[:3]:
+		d_pos = dnase_file2.tell()
+		d2_line = dnase_file2.readline()
+	regions.seek(f_start)
+	dnase_file2.seek(d_pos)
 
 	def calc_foot(scores):
 		return [(DNASE[i-2]+DNASE[i+2])/2-DNASE[i] * scores[i] for i in range(2,len(DNASE)-2)]
@@ -217,6 +224,12 @@ def wrapper(start_stop):
 		chrom, start, end = fields[0], int(fields[1]), int(fields[2])
 		mid = (start+end)/2
 
+		d2_line = dnase_file2.readline().split()
+		if d2_line[3] == '.':
+			DNASE2 = [0]
+		else:
+			DNASE2 = [min(int(d2_line[2]), end) - max(int(d2_line[1]), start)]
+
 		for rna_line in rna_file:
 			rna_fields = rna_line.strip().split()
 			if rna_fields[0] == chrom:
@@ -232,7 +245,7 @@ def wrapper(start_stop):
 			DNASE  = populate(dnase_file, 4, 500, 25)
 			PWM    = populate(pwm_file, 7, 500, 25)
 			STRUM  = populate(strum_file, 7, 500, 25)
-			KMERS  = populate(kmer_file, 1, 500, 25,True)
+			#KMERS  = populate(kmer_file, 1, 500, 25,True)
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 		else:
@@ -242,12 +255,13 @@ def wrapper(start_stop):
 			update_data(dnase_file, 4, DNASE, mult25)
 			update_data(pwm_file, 7, PWM, mult25) 
 			update_data(strum_file, 7, STRUM, mult25)
-			update_data(kmer_file, 1, KMERS, mult25, True)
+			#update_data(kmer_file, 1, KMERS, mult25, True)
 			
 			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
-		row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		#row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		row = RNA + DNASE + DNASE2 + PWM + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
 		data.append(row)
 		
 		last_start = start
@@ -285,20 +299,16 @@ print >> sys.stderr, "-->", print_time(time_start, time_end)
 #============================================================
 # SCORE EACH POSITION
 print >> sys.stderr, "Scoring"
-clf_n = 0
-for clf in clfs:
-	clf_n += 1
-	with open("L.H1-hESC.tab.%d" % clf_n, "wb") as g:
-		time_start = time.time()
+time_start = time.time()
 
-		Y = best_clf.predict_proba(data)[:,1]
-		#del data
+Y = best_clf.predict_proba(data)[:,1]
+#del data
 
-		regions.seek(0)
-		count = 0
-		for line in regions:
-			print >> g, line.strip() + "\t{}".format(Y[count])
-			count += 1
+regions.seek(0)
+count = 0
+for line in regions:
+	print line.strip() + "\t{}".format(Y[count])
+	count += 1
 
 time_end = time.time()
 print >> sys.stderr, "-->", print_time(time_start, time_end)
