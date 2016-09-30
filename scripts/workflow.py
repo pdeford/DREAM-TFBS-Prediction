@@ -147,22 +147,23 @@ print >> sys.stderr, "Get offsets"
 offsets = get_offsets()
 frac_unbound = 0.05
 
-#Y = []
-#data = []
+Y = []#Y = []
+data = []#data = []
 #
-#for line in training_labels_file:
-def wrapper(line):
+for line in training_labels_file:#for line in training_labels_file:
+#def wrapper(line):
+    print line.strip()
     fields = line.split()
     bound = fields[column_of_interest]
     
     if bound == "A":
-        return #continue
+        continue#return #continue
     elif bound == "B":
-        y = 1  #Y.append(1)
+        Y.append(1)#y = 1  #Y.append(1)
     elif random.random >= 1 - frac_unbound:
-        y = 0  #Y.append(0)
+        Y.append(0)#y = 0  #Y.append(0)
     else:
-        return #continue
+        continue#return #continue
 
     chrom, start, stop = fields[0], int(fields[1]), int(fields[2])
 
@@ -220,7 +221,8 @@ def wrapper(line):
     else:
         dnase_overlap = 0
 
-    return ([y, dnase_overlap, max(dnase_trace), max(pwm_matches), 
+    #return 
+    ([y, dnase_overlap, max(dnase_trace), max(pwm_matches), 
              max(strum_matches), max(pwm_feet), max(strum_feet)]
             + bin(dnase_trace, func=np.average) + bin(pwm_matches) 
             + bin(strum_matches) + bin(pwm_feet) + bin(strum_feet))
