@@ -31,7 +31,7 @@ def matchPWM(TF,PWM,kmer):
 			kmer_scores[TF][kmer] = kmer_scores[TF][kmer2] = max(p1,p2)
 			return kmer_scores[TF][kmer]
 		else:
-			return max(p1,p2)
+			return np.log2(max(p1,p2))
 
 def scorePWM(TF,PWM,seq):
 	k = PWM.shape[1]
