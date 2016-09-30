@@ -105,6 +105,7 @@ def bin(seq, binsize=50, func=max):
     out = []
     for i in range(0, len(seq), binsize):
         out.append(func(seq[i:i + binsize]))
+    return out
 
 ###############################################################################
 # Preload data
@@ -147,23 +148,22 @@ print >> sys.stderr, "Get offsets"
 offsets = get_offsets()
 frac_unbound = 0.05
 
-Y = []#Y = []
-data = []#data = []
+#Y = []
+#data = []
 #
-for line in training_labels_file:#for line in training_labels_file:
-#def wrapper(line):
-    print line.strip()
+#for line in training_labels_file:
+def wrapper(line):
     fields = line.split()
     bound = fields[column_of_interest]
     
     if bound == "A":
-        continue#return #continue
+        return #continue
     elif bound == "B":
-        Y.append(1)#y = 1  #Y.append(1)
+        y = 1  #Y.append(1)
     elif random.random >= 1 - frac_unbound:
-        Y.append(0)#y = 0  #Y.append(0)
+        y = 0  #Y.append(0)
     else:
-        continue#return #continue
+        return #continue
 
     chrom, start, stop = fields[0], int(fields[1]), int(fields[2])
 
@@ -179,7 +179,7 @@ for line in training_labels_file:#for line in training_labels_file:
                 np.sum(np.log(np.sum(PWM*kmer2, axis=0))))
             )
 
-    struc_seq = lookup_seq_structure(chrom, start - 150, stop + 150)
+    struc_seq = lookup_seq_structure(chrom, start - 150, stop + 150 + 1)
     strum_matches = []
     for i in range(len(sequence) - pk/p + 1):
         kmer_struc = struc_seq[i*p:(i*p + pk)]
@@ -194,24 +194,25 @@ for line in training_labels_file:#for line in training_labels_file:
 
     dnase_trace = dnase_signal_file.get_as_array(chrom, start - 150, stop + 150)
     dnase_trace[np.isnan(dnase_trace)] = 0.0
-    
+    dnase_trace = list(dnase_trace)
+
     pwm_feet = []
-    for i, s in pwm_matches[50:-50 + k]:
+    for i, s in enumerate(pwm_matches[50:-50 + k - 1]):
         context = np.average([
-                dnase_trace[i:(i + 50)], 
-                dnase_trace[(i + 50 + k):(i + 100 + k)]
+                dnase_trace[i:(i + 50)] 
+                + dnase_trace[(i + 50 + k):(i + 100 + k)]
             ])
         center = np.average(dnase_trace[(i + 50):(i + 50 + k)])
         pwm_feet.append((context - center)*s)
 
     strum_feet = []
-    for i, s in strum_matches[50:-50 + pk]:
+    for i, s in enumerate(strum_matches[50:-50 + pk/p - 1]):
         context = np.average([
-                dnase_trace[i:(i + 50)], 
-                dnase_trace[(i + 50 + pk):(i + 100 + pk)]
+                dnase_trace[i:(i + 50)] 
+                + dnase_trace[(i + 50 + pk/p):(i + 100 + pk/p)]
             ])
-        center = np.average(dnase_trace[(i + 50):(i + 50 + pk)])
-        pwm_feet.append((context - center)*s)
+        center = np.average(dnase_trace[(i + 50):(i + 50 + pk/p)])
+        strum_feet.append((context - center)*s)
 
 
     for d_start, d_stop in peaks[chrom]:
@@ -222,8 +223,7 @@ for line in training_labels_file:#for line in training_labels_file:
     else:
         dnase_overlap = 0
 
-    #return 
-    ([y, dnase_overlap, max(dnase_trace), max(pwm_matches), 
+    return ([y, dnase_overlap, max(dnase_trace), max(pwm_matches), 
              max(strum_matches), max(pwm_feet), max(strum_feet)]
             + bin(dnase_trace, func=np.average) + bin(pwm_matches) 
             + bin(strum_matches) + bin(pwm_feet) + bin(strum_feet))
