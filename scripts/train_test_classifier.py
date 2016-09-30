@@ -21,7 +21,8 @@ rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
 test_cell = sys.argv[7] # Duh
 kmer_file = open(sys.argv[8]) # output/kmers.tsv
 out_dir = sys.argv[9]
-training_arrays = sys.argv[10:]
+training_arrays = sys.argv[10:-1]
+out_file = sys.argv[-1]
 
 n_cores = cpu_count()
 
@@ -319,9 +320,10 @@ Y = best_clf.predict_proba(data)[:,1]
 
 regions.seek(0)
 count = 0
-for line in regions:
-	print line.strip() + "\t{}".format(Y[count])
-	count += 1
+with open(out_file, "wb") as g:
+	for line in regions:
+		print >> g, line.strip() + "\t{}".format(Y[count])
+		count += 1
 
 time_end = time.time()
 print >> sys.stderr, "-->", print_time(time_start, time_end)
