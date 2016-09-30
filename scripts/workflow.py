@@ -180,12 +180,16 @@ for line in training_labels_file:#for line in training_labels_file:
 
     struc_seq = lookup_seq_structure(chrom, start - 150, stop + 150)
     strum_matches = []
-    for i in range(len(sequence) - pk +1):
+    for i in range(len(sequence) - pk + 1):
         kmer_struc = struc_seq[i*p:(i + pk)*p]
         kmer_struc2 = np.hstack(
             [kmer_struc[i:i+p] for i in range(0,len(kmer_struc),p)[::-1]]
             )
-        score1 = np.sum(np.log2(norm_pdf(kmer_struc, strum[0], strum[1]**2)))
+        try:
+            score1 = np.sum(np.log2(norm_pdf(kmer_struc, strum[0], strum[1]**2)))
+        except:
+            print i
+            quit()
         score2 = np.sum(np.log2(norm_pdf(kmer_struc2, strum[0], strum[1]**2)))
         strum_matches.append(
             max(score1, score2)
