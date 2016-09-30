@@ -108,8 +108,8 @@ def bin(seq, binsize=50, func=max):
 # Preload data
 
 # Motifs
-pwm = pickle.load(data_dir + "out/{}_PWM.p".format(TF))
-strum = pickle.load(data_dir + "out/{}_StruM.p".format(TF))
+pwm = pickle.load(open(data_dir + "out/{}_PWM.p".format(TF), 'rb'))
+strum = pickle.load(open(data_dir + "out/{}_StruM.p".format(TF), 'rb'))
 
 k = pwm.shape[1]
 PWM = np.zeros([5,k])
