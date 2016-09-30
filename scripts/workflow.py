@@ -15,6 +15,8 @@ import numpy as np
 
 ###############################################################################
 
+print >> sys.stderr, "Reading arguments"
+
 TF = sys.argv[1]
 cell = sys.argv[2]
 data_dir = sys.argv[3] + "/"
@@ -107,6 +109,7 @@ def bin(seq, binsize=50, func=max):
 ###############################################################################
 # Preload data
 
+print >> sys.stderr, "Loading motifs"
 # Motifs
 pwm = pickle.load(open(data_dir + "out/{}_PWM.p".format(TF), 'rb'))
 strum = pickle.load(open(data_dir + "out/{}_StruM.p".format(TF), 'rb'))
@@ -119,6 +122,8 @@ PWM[4,:] += 0.25
 p = len(subprocess.check_output(["ls", data_dir + "shape/"]).split())
 pk = len(strum[0])/p
 
+
+print >> sys.stderr, "Preparing DNase"
 # DNase signal
 dnase_signal_file = bx.bbi.bigwig_file.BigWigFile(
     open(data_dir + "DNase/signal/DNASE.%s.fc.signal.bigwig" % (cell), "rb")
@@ -138,6 +143,7 @@ with open(
 
 ###############################################################################
 
+print >> sys.stderr, "Get offsets"
 offsets = get_offsets()
 frac_unbound = 0.05
 
@@ -219,11 +225,13 @@ def wrapper(line):
             + bin(dnase_trace, func=np.average) + bin(pwm_matches) 
             + bin(strum_matches) + bin(pwm_feet) + bin(strum_feet))
 
+print >> sys.stderr, "Starting evaluation"
 pool = Pool()
 data = pool.map(wrapper, training_labels_file.readlines())
 pool.close()
 pool.join()
 
+print >> sys.stderr, "Filtering"
 Y = []
 X = []
 for i,row in enumerate(data):
@@ -234,5 +242,5 @@ for i,row in enumerate(data):
 Y = np.asarray(Y)
 X = np.asarray(data)
 
-
+print >> sys.stderr, "Done."
 
