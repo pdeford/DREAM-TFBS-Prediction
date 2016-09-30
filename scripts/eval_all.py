@@ -25,7 +25,7 @@ for line in f:
 command = """TF=%s; cell=%s; data_dir=%s; out_dir=%s;
 if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab.gz' ]
   then
-    if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab' ]
+    if [ ! -e $out_dir'/%s.'$TF'.'$cell'.log' ]
       then 
         python scripts/train_test_classifier.py \
         $data_dir'/annotations/regions/%s' \
@@ -38,9 +38,11 @@ if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab.gz' ]
         $out_dir'/kmers.tsv' \
         $out_dir \
         $out_dir'/'$TF'_'*'_train.h5' \
-        > $out_dir'/%s.'$TF'.'$cell'.tab'
-  fi;
-  gzip $out_dir'/%s.'$TF'.'$cell'.tab'
+        $out_dir'/%s.'$TF'.'$cell'.tab'\
+	> $out_dir'/%s.'$TF'.'$cell'.log'
+ 
+        gzip $out_dir'/%s.'$TF'.'$cell'.tab'
+    fi
 fi
 """
 
@@ -52,7 +54,7 @@ for round in ['L', 'F']:
 		else: region_file = "test_regions.blacklistfiltered.bed"
 		for cell in TFs[TF][round]:
 			if cell != "":
-				subprocess.call(command % (TF, cell, data_dir, out_dir, round, round, region_file, round, round),
+				subprocess.call(command % (TF, cell, data_dir, out_dir, round, round, region_file, round, round, round),
 					shell=True)
 
 
