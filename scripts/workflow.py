@@ -76,7 +76,7 @@ def lookup_sequence(chrom, start=None, end=None, offsets=None):
 
 nuc_index = dict(zip("ACGTN",range(5)))
 def one_hot(sequence):
-    oh = np.zeros(5,len(sequence))
+    oh = np.zeros([5, len(sequence)])
     for i,n in enumerate(sequence):
         oh[nuc_index[n], i] += 1
     return oh
@@ -115,7 +115,7 @@ pwm = pickle.load(open(data_dir + "out/{}_PWM.p".format(TF), 'rb'))
 strum = pickle.load(open(data_dir + "out/{}_StruM.p".format(TF), 'rb'))
 
 k = pwm.shape[1]
-PWM = np.zeros([5,k])
+PWM = np.zeros([5, k])
 PWM[:4,:] = pwm
 PWM[4,:] += 0.25
 
