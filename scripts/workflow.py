@@ -171,7 +171,7 @@ for line in training_labels_file:#for line in training_labels_file:
     one_hot_seq = one_hot(sequence)
     pwm_matches = []
     for i in range(len(sequence) - k + 1):
-        kmer = one_hot_seq[i:(i + k)]
+        kmer = one_hot_seq[:, i:(i + k)]
         kmer2 = kmer[:,::-1]
         kmer2[:4] = kmer2[3::-1]
         pwm_matches.append(
