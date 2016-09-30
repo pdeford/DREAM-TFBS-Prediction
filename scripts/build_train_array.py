@@ -155,27 +155,27 @@ def wrapper(start_stop):
 			for f in [pwm_file, strum_file, dnase_file, rna_file]: f.seek(0)
 		
 			DNASE  = populate(dnase_file, 4, 500, 25)
-			#PWM    = populate(pwm_file, 7, 500, 25)
+			PWM    = populate(pwm_file, 7, 500, 25)
 			STRUM  = populate(strum_file, 7, 500, 25)
 			#KMERS  = populate(kmer_file, 1, 500, 25,True)
-			#P_FOOT = calc_foot([np.log2(x) for x in PWM])
+			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 		else:
 			interval = start-last_start
 			mult25 = interval/25
 			
 			update_data(dnase_file, 4, DNASE, mult25)
-			#update_data(pwm_file, 7, PWM, mult25) 
+			update_data(pwm_file, 7, PWM, mult25) 
 			update_data(strum_file, 7, STRUM, mult25)
 			#update_data(kmer_file, 1, KMERS, mult25, True)
 			
-			#P_FOOT = calc_foot([np.log2(x) for x in PWM])
+			P_FOOT = calc_foot(PWM)
 			S_FOOT = calc_foot(STRUM)
 
 		#pwm2 = [np.log2(x) for x in PWM]
-		#row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
-		#row = RNA + DNASE + pwm2 + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(pwm2), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
-		row = RNA + DNASE + DNASE2 + STRUM + S_FOOT+ [np.max(DNASE), np.max(STRUM), np.max(S_FOOT)]
+		#row = RNA + DNASE + DNASE2 + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		row = RNA + DNASE + DNASE2 + PWM + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
+		#row = RNA + DNASE + DNASE2 + STRUM + S_FOOT+ [np.max(DNASE), np.max(STRUM), np.max(S_FOOT)]
 
 		Y.append(y)
 		data.append(row)

@@ -36,7 +36,7 @@ else:
 	# PREPROCESS ARRAY
 	print >> sys.stderr, "Loading training data"
 	time_start = time.time()
-	N1 = 10000
+	N1 = 100000
 	N2 = 1000000 # 1Mil positive examples (a full cell type's data's worth) and 10Mil neg (1/5 total)
 	n1 = int(N1/len(training_arrays))
 	n2 = int(N2/len(training_arrays))
@@ -48,35 +48,47 @@ else:
 
 	for name in training_arrays:
 		print >> sys.stderr, "\t" + name
-		subprocess.call("cp {} /localscratch/pd/".format(name),shell=True)
-		new_name = "/localscratch/pd/" + name.split("/")[-1]
-		f = tables.open_file(new_name, mode='r')
+		#subprocess.call("cp {} /localscratch/pd/".format(name),shell=True)
+		#new_name = "/localscratch/pd/" + name.split("/")[-1]
+		#f = tables.open_file(new_name, mode='r')
+		f = tables.open_file(name, mode='r')
 		y = f.root.data.Y[:]
-		x = f.root.data.X[:]
+		if N2 < 00000:
+			x = f.root.data.X
+		else:
+			x = f.root.data.X[:]
 
 		print >> sys.stderr, "\t...selecting indices"
 		all_indices = np.asarray(range(y.shape[0]))
 		pos_sample = all_indices[y==1]
 		neg_sample = all_indices[y==0]
-		print >> sys.stderr, "\t\t", pos_sample.shape, neg_sample.shape
+		#print >> sys.stderr, "\t\t", pos_sample.shape, neg_sample.shape
 
-		np.random.shuffle(pos_sample)
+		#np.random.shuffle(pos_sample)
 		np.random.shuffle(neg_sample)
-
-		training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
-		full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
+		np.random.shuffle(all_indices)
+		#training_indices = sorted(list(np.hstack([pos_sample[:n1], neg_sample[:10*n1]])))
+		#full_train = sorted(list(np.hstack([pos_sample[n1:n1+n2], neg_sample[10*n1:10*(n1+n2)]])))
+		training_indices = sorted(list(all_indices[:n1]))
+		pos_sample = list(pos_sample[~np.in1d(pos_sample, training_indices)])
+		neg_sample = list(neg_sample[~np.in1d(neg_sample, training_indices)])
+		left = n2 - len(pos_sample)
+		#full_train = sorted(list(all_indices[n1:n1+n2]))
+		full_train = sorted(pos_sample + neg_sample[:left])
 		print >> sys.stderr, "\t\t", len(training_indices), len(full_train)
-
+		
 		print >> sys.stderr, "\t...pulling smaller x"
 		X_test.append(x[training_indices,:])
 		Y_test.append(y[training_indices])
 		print >> sys.stderr, "\t...pulling larger x"
 		X_train.append(x[full_train,:])
+		#X_train.append(x_t)
 		Y_train.append(y[full_train])
 		print >> sys.stderr, "\t...wrapping up"
 		f.close()
-		del y,x,all_indices,pos_sample,neg_sample,training_indices,full_train
-		subprocess.call("rm {}".format(new_name),shell=True)
+		#del y,x,all_indices,pos_sample,neg_sample,training_indices,full_train
+		del y,x,all_indices,training_indices,full_train
+		#subprocess.call("rm {}".format(new_name),shell=True)
 
 	print >> sys.stderr, "...Compiling"
 	X_train = np.vstack(X_train)
@@ -103,22 +115,33 @@ else:
 	time_start = time.time()
 
 	from sklearn.ensemble import RandomForestClassifier as RFC
+	from sklearn.ensemble import BaggingClassifier
 	from sklearn.metrics import roc_auc_score, average_precision_score
+	from sklearn.svm import SVC
+	from sklearn.linear_model import LogisticRegression as logit
+	clfs = []
+	n_est = 200
+	for best_clf in [RFC(n_jobs=-1, n_estimators=n_est)]: #, BaggingClassifier(SVC(probability=True), n_estimators=n_est, n_jobs=-1, max_samples=10000), logit()]:
+	#best_clf = RFC(n_jobs=-1,n_estimators=50)
+	#best_clf = SVC(probability=True)
+	#n_est = 100
+	#best_clf = BaggingClassifier(SVC(probability=True), n_estimators=n_est, n_jobs=-1, max_samples=25000)
+	#best_clf = logit()
+		best_clf.fit(X_train, Y_train)
+		Y2 = best_clf.predict_proba(X_test)[:,1]
 
-	best_clf = RFC(n_jobs=-1,n_estimators=50)
-	best_clf.fit(X_train, Y_train)
-	Y2 = best_clf.predict_proba(X_test)[:,1]
+		print >> sys.stderr, best_clf
+		print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
+		print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
+		clfs.append(best_clf)
 
-	print >> sys.stderr, best_clf
-	print >> sys.stderr, "auPRC:", average_precision_score(Y_test, Y2)
-	print >> sys.stderr, "auROC:", roc_auc_score(Y_test, Y2)
 	time_end = time.time()
 	print >> sys.stderr, "-->", print_time(time_start, time_end)
-
-	pickle.dump(best_clf, open(out_dir + "/%s_clf.p" % TF,"wb"))
+	pickle.dump(best_clf, open(out_dir + "/%s_clf_.p" % (TF,),"wb"))
 
 	del X_train, X_test, Y_train, Y_test
 
+quit()
 #============================================================
 # BUILD TEST ARRAY
 
@@ -262,16 +285,20 @@ print >> sys.stderr, "-->", print_time(time_start, time_end)
 #============================================================
 # SCORE EACH POSITION
 print >> sys.stderr, "Scoring"
-time_start = time.time()
+clf_n = 0
+for clf in clfs:
+	clf_n += 1
+	with open("L.H1-hESC.tab.%d" % clf_n, "wb") as g:
+		time_start = time.time()
 
-Y = best_clf.predict_proba(data)[:,1]
-del data
+		Y = best_clf.predict_proba(data)[:,1]
+		#del data
 
-regions.seek(0)
-count = 0
-for line in regions:
-	print line.strip() + "\t{}".format(Y[count])
-	count += 1
+		regions.seek(0)
+		count = 0
+		for line in regions:
+			print >> g, line.strip() + "\t{}".format(Y[count])
+			count += 1
 
 time_end = time.time()
 print >> sys.stderr, "-->", print_time(time_start, time_end)

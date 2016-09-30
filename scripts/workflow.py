@@ -83,13 +83,18 @@ def one_hot(sequence):
 
 def lookup_seq_structure(chrom, start, end):
     shape_dir = data_dir + "shape/"
-    data = []
-    for f_name in subprocess.check_output(["ls","{}".format(shape_dir)]).split():
+    def read_row():
         bwh = bx.bbi.bigwig_file.BigWigFile(open(shape_dir + "/" + f_name, "rb"))
         row = bwh.get_as_array(chrom, start, end)
+        del bwh
         row[np.isnan(row)] = 0.0
-        data.append(row)
+        return row
 
+    data = []
+    for line in open(data_dir + "out/shape_files.txt"):
+        f_name = line.strip()
+        row = read_row()
+        data.append(row)
     data = np.vstack(data)
     return np.ravel(data)
 
@@ -125,11 +130,6 @@ pk = len(strum[0])
 
 
 print >> sys.stderr, "Preparing DNase"
-# DNase signal
-dnase_signal_file = bx.bbi.bigwig_file.BigWigFile(
-    open(data_dir + "DNase/signal/DNASE.%s.fc.signal.bigwig" % (cell), "rb")
-    )
-
 # DNase peaks
 with open(
         data_dir + "DNase/conservative/DNASE.%s.conservative.narrowPeak" % (cell)
@@ -141,6 +141,10 @@ with open(
         if chrom not in peaks:
             peaks[chrom] = []
         peaks[chrom].append((start,stop))
+
+# DNA shape
+shape_dir = data_dir + "shape/"
+subprocess.call("ls {} > {}".format(shape_dir, data_dir + "out/shape_files.txt"), shell=True)
 
 ###############################################################################
 
@@ -167,7 +171,7 @@ def wrapper(line):
 
     chrom, start, stop = fields[0], int(fields[1]), int(fields[2])
 
-    sequence = lookup_sequence(chrom, start - 150, stop + 150, offsets)
+    sequence = lookup_sequence(chrom, start - 150, stop + 150, offsets).upper()
     one_hot_seq = one_hot(sequence)
     pwm_matches = []
     for i in range(len(sequence) - k + 1):
@@ -191,7 +195,9 @@ def wrapper(line):
         strum_matches.append(
             max(score1, score2)
             )
-
+    dnase_signal_file = bx.bbi.bigwig_file.BigWigFile(                          
+            open(data_dir + "DNase/signal/DNASE.%s.fc.signal.bigwig" % (cell), "rb")
+        )                                                                       
     dnase_trace = dnase_signal_file.get_as_array(chrom, start - 150, stop + 150)
     dnase_trace[np.isnan(dnase_trace)] = 0.0
     dnase_trace = list(dnase_trace)
