@@ -175,7 +175,8 @@ for line in training_labels_file:#for line in training_labels_file:
         kmer2 = kmer[:,::-1]
         kmer2[:4] = kmer2[3::-1]
         pwm_matches.append(
-            max(np.sum(np.log(PWM*kmer)), np.sum(np.log(PWM*kmer2)))
+            max(np.sum(np.log(np.sum(PWM*kmer, axis=0))), 
+                np.sum(np.log(np.sum(PWM*kmer2, axis=0))))
             )
 
     struc_seq = lookup_seq_structure(chrom, start - 150, stop + 150)
@@ -185,11 +186,7 @@ for line in training_labels_file:#for line in training_labels_file:
         kmer_struc2 = np.hstack(
             [kmer_struc[i:i+p] for i in range(0,len(kmer_struc),p)[::-1]]
             )
-        try:
-            score1 = np.sum(np.log2(norm_pdf(kmer_struc, strum[0], strum[1]**2)))
-        except:
-            print i
-            quit()
+        score1 = np.sum(np.log2(norm_pdf(kmer_struc, strum[0], strum[1]**2)))
         score2 = np.sum(np.log2(norm_pdf(kmer_struc2, strum[0], strum[1]**2)))
         strum_matches.append(
             max(score1, score2)
