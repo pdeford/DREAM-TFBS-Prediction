@@ -73,9 +73,18 @@ def wrapper(start_stop):
 	dnase_file = open(sys.argv[5]) # output/DNASE_cell.tsv
 	rna_file = open(sys.argv[6]) # output/RNA_vals.tsv
 	kmer_file = open(sys.argv[8]) # output/kmers.tsv
-	
+	dnase_file2 = open(out_dir + sys.argv[5].split("/")[-1].split("_")[0] + "_DNASE_intersect_train.out")
+
 	training_chip.seek(f_start)
 	f_pos = f_start
+	first_line = training_chip.readline()
+	d_pos = dnase_file2.tell()
+	d2_line = dnase_file2.readline()
+	while d2_line.split()[:3] != first_line.split()[:3]:
+		d_pos = dnase_file2.tell()
+		d2_line = dnase_file2.readline()
+	training_chip.seek(f_start)
+	dnase_file2.seek(d_pos)
 
 	data = []
 	Y = []
@@ -120,11 +129,17 @@ def wrapper(start_stop):
 		fields = line.strip().split()
 		chrom, start, end, bound = fields[0], int(fields[1]), int(fields[2]), fields[cell_column] 
 		mid = (start+end)/2
+
+		d2_line = dnase_file2.readline().split()
 		
 		if bound == "A": continue
 		if bound == "B": y = 1
 		else: y = 0
 
+		if d2_line[3] == '.':
+			DNASE2 = [0]
+		else:
+			DNASE2 = [min(int(d2_line[2]), end) - max(int(d2_line[1]), start)]
 
 		for rna_line in rna_file:
 			rna_fields = rna_line.strip().split()
@@ -160,7 +175,7 @@ def wrapper(start_stop):
 		#pwm2 = [np.log2(x) for x in PWM]
 		#row = RNA + DNASE + PWM + STRUM + P_FOOT + S_FOOT+ list(np.sum(KMERS, axis=0)) + [np.max(DNASE), np.max(PWM), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
 		#row = RNA + DNASE + pwm2 + STRUM + P_FOOT + S_FOOT+ [np.max(DNASE), np.max(pwm2), np.max(STRUM), np.max(P_FOOT), np.max(S_FOOT)]
-		row = RNA + DNASE  + STRUM + S_FOOT+ [np.max(DNASE), np.max(STRUM), np.max(S_FOOT)]
+		row = RNA + DNASE + DNASE2 + STRUM + S_FOOT+ [np.max(DNASE), np.max(STRUM), np.max(S_FOOT)]
 
 		Y.append(y)
 		data.append(row)
