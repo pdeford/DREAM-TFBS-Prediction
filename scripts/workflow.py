@@ -17,8 +17,11 @@ import numpy as np
 
 TF = sys.argv[1]
 cell = sys.argv[2]
-training_labels_file = open(sys.argv[3])
-data_dir = sys.argv[4] + "/"
+data_dir = sys.argv[3] + "/"
+
+training_labels_file = open(
+        data_dir + "annotations/labels/{}.train.labels.tsv".format(TF)
+    )
 
 column_of_interest = [
     i for i,x in enumerate(training_labels_file.readline().split()) if x==cell
