@@ -120,7 +120,7 @@ PWM[:4,:] = pwm
 PWM[4,:] += 0.25
 
 p = len(subprocess.check_output(["ls", data_dir + "shape/"]).split())
-pk = len(strum[0])/p
+pk = len(strum[0])
 
 
 print >> sys.stderr, "Preparing DNase"
@@ -180,8 +180,8 @@ for line in training_labels_file:#for line in training_labels_file:
 
     struc_seq = lookup_seq_structure(chrom, start - 150, stop + 150)
     strum_matches = []
-    for i in range(len(sequence) - pk + 1):
-        kmer_struc = struc_seq[i*p:(i + pk)*p]
+    for i in range(len(sequence) - pk/p + 1):
+        kmer_struc = struc_seq[i*p:(i*p + pk)]
         kmer_struc2 = np.hstack(
             [kmer_struc[i:i+p] for i in range(0,len(kmer_struc),p)[::-1]]
             )
