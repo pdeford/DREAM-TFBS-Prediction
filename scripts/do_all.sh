@@ -39,6 +39,8 @@ if [ ! -e $out_dir'/HepG2_DNase.tsv']
 		python scripts/do_DNase.py $data_dir'/DNase/signal/' $out_dir
 fi
 
+bash prepare_DNase_overlap.sh $data_dir
+
 # Learn all of the motifs
 cut -f1 TF_cellTypes.txt | tail -n+2 > tfs.txt
 
