@@ -35,8 +35,7 @@ def neural_network(x, W_0, W_1, b_0, b_1):
 # DATA
 name = "/cache/DREAM-tfbs-pred/out/ATF2_GM12878_train.h5"
 n1 = 10000
-n2 = 100000
-# name = "/Users/pdeford/Desktop/DREAM/DREAM-TFBS-Prediction/ATF2_down.h5"
+n2 = 1000000
 
 f = tables.open_file(name, mode='r')
 y = f.root.data.Y[:]
@@ -58,6 +57,9 @@ x_train = x[full_train,:]
 y_train = y[full_train]
 f.close()
 
+x_place = tf.placeholder(tf.float32, shape=x_train.shape)
+y_place = tf.placeholder(tf.int8, shape=y_train.shape)
+
 N = x_train.shape[0]   # num data ponts
 D = x_train.shape[1]   # num features
 
@@ -67,7 +69,7 @@ W_1 = Normal(mu=tf.zeros([2, 1]), sigma=tf.ones([2, 1]))
 b_0 = Normal(mu=tf.zeros(2), sigma=tf.ones(2))
 b_1 = Normal(mu=tf.zeros(1), sigma=tf.ones(1))
 
-x = tf.convert_to_tensor(x_train, dtype=tf.float32)
+x = tf.convert_to_tensor(x_place, dtype=tf.float32)
 y = Normal(mu=neural_network(x, W_0, W_1, b_0, b_1),
            sigma=0.1 * tf.ones(N))
 
@@ -91,7 +93,7 @@ init = tf.initialize_all_variables()
 init.run()
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
-inference.run(n_iter=500, n_samples=5, n_print=100)
+inference.run(n_iter=500, n_samples=5, n_print=100, feed_dict={x_place: x_train})
 
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
