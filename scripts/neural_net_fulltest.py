@@ -16,7 +16,6 @@ Variational model
 #from __future__ import print_function
 
 import edward as ed
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tables
@@ -35,6 +34,8 @@ def neural_network(x, W_0, W_1, b_0, b_1):
 
 # DATA
 name = "/cache/DREAM-tfbs-pred/out/ATF2_GM12878_train.h5"
+n1 = 10000
+n2 = 100000
 # name = "/Users/pdeford/Desktop/DREAM/DREAM-TFBS-Prediction/ATF2_down.h5"
 
 f = tables.open_file(name, mode='r')
