@@ -33,6 +33,7 @@ def neural_network(x, W_0, W_1, b_0, b_1):
     return tf.reshape(h, [-1])
 
 # DATA
+print "LOADING DATA"
 name = "/cache/DREAM-tfbs-pred/out/ATF2_GM12878_train.h5"
 n1 = 10000
 n2 = 100000
@@ -62,6 +63,7 @@ N = x_train.shape[0]   # num data ponts
 D = x_train.shape[1]   # num features
 
 # MODEL
+print "DEFINING MODEL"
 W_0 = Normal(mu=tf.zeros([D, 2]), sigma=tf.ones([D, 2]))
 W_1 = Normal(mu=tf.zeros([2, 1]), sigma=tf.ones([2, 1]))
 b_0 = Normal(mu=tf.zeros(2), sigma=tf.ones(2))
@@ -72,6 +74,7 @@ y = Normal(mu=neural_network(x, W_0, W_1, b_0, b_1),
            sigma=0.1 * tf.ones(N))
 
 # INFERENCE
+print "PREPARING TO CARRY OUT INFERENCE"
 qW_0 = Normal(mu=tf.Variable(tf.random_normal([D, 2])),
               sigma=tf.nn.softplus(tf.Variable(tf.random_normal([D, 2]))))
 qW_1 = Normal(mu=tf.Variable(tf.random_normal([2, 1])),
@@ -91,10 +94,12 @@ init = tf.initialize_all_variables()
 init.run()
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
+print "INFERENCE"
 inference.run(n_iter=500, n_samples=5, n_print=100)
 
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
+print "TRAIN LOGIT"
 mus = neural_network(x_train, qW_0.sample(), qW_1.sample(),
                      qb_0.sample(), qb_1.sample())
 outputs = mus.eval()
@@ -103,6 +108,7 @@ clf = logit()
 clf.fit(outputs.reshape(-1, 1), y_train)
 
 # SCORE THE PERFORMANCE OF THE FULL MODEL
+print "EVAL PERFORMANCE"
 mus = neural_network(x_test, qW_0.sample(), qW_1.sample(),
                      qb_0.sample(), qb_1.sample())
 outputs = mus.eval()
