@@ -35,7 +35,7 @@ def neural_network(x, W_0, W_1, b_0, b_1):
 # DATA
 print "LOADING DATA"
 name = "/cache/DREAM-tfbs-pred/out/ATF2_GM12878_train.h5"
-n1 = 10000
+n1 = 100000
 n2 = 1000000
 
 f = tables.open_file(name, mode='r')
@@ -96,13 +96,8 @@ init = tf.initialize_all_variables()
 init.run()
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
-<<<<<<< HEAD
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100)
-=======
 inference.run(n_iter=500, n_samples=5, n_print=100, feed_dict={x_place: x_train})
->>>>>>> 504d153de62a0ddc4b951b868b6cb63cd8dd7617
-
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
