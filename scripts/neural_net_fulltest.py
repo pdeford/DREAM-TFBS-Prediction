@@ -71,7 +71,7 @@ W_1 = Normal(mu=tf.zeros([2, 1]), sigma=tf.ones([2, 1]))
 b_0 = Normal(mu=tf.zeros(2), sigma=tf.ones(2))
 b_1 = Normal(mu=tf.zeros(1), sigma=tf.ones(1))
 
-x = tf.convert_to_tensor(x_place, dtype=tf.float32)
+x = tf.convert_to_tensor(tf.Variable(x_place), dtype=tf.float32)
 y = Normal(mu=neural_network(x, W_0, W_1, b_0, b_1),
            sigma=0.1 * tf.ones(N))
 
@@ -97,7 +97,7 @@ init.run(feed_dict={x_place: x_train})
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100, feed_dict={x_place: x_train})
+inference.run(n_iter=500, n_samples=5, n_print=100,)
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
