@@ -97,7 +97,7 @@ init.run(feed_dict={x_place: x_train})
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100,)
+inference.run(n_iter=500, n_samples=5, n_print=100, feed_dict={x_place: x_train})
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
