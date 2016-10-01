@@ -46,8 +46,8 @@ if [ ! -e $out_dir'/%s.'$TF'.'$cell'.tab.gz' ]
 fi
 """
 
-for round in ['L', 'F']:
-	for TF in sorted(TFs.keys()):
+for TF in sorted(TFs.keys()):
+	for round in ['L', 'F']:
 		if sum( [1 for cell in TFs[TF]["F"] if cell != ""] ) == 0:
 			continue
 		if round == "L": region_file = "ladder_regions.blacklistfiltered.bed"
@@ -56,16 +56,4 @@ for round in ['L', 'F']:
 			if cell != "":
 				subprocess.call(command % (TF, cell, data_dir, out_dir, round, round, region_file, round, round, round),
 					shell=True)
-
-
-
-
-
-
-
-
-
-
-
-
 
