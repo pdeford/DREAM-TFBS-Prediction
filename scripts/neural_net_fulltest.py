@@ -93,11 +93,11 @@ inference = ed.MFVI({W_0: qW_0, b_0: qb_0,
 
 sess = ed.get_session()
 init = tf.initialize_all_variables()
-init.run()
+init.run(feed_dict={x_place: x_train})
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100, feed_dict={x_place: x_train})
+inference.run(n_iter=500, n_samples=5, n_print=100,)
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
