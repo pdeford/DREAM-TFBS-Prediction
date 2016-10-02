@@ -30,8 +30,12 @@ def print_time(start,stop):
 	time_taken = stop-start
 	return "%dm %0.2fs" % (time_taken//60, time_taken%60)
 
+def normalize(array):                     
+        return (array-clean_avg)/clean_std
+
 if os.path.isfile(out_dir + "/%s_clf.p" % TF):
 	best_clf = pickle.load(open(out_dir + "/%s_clf.p" % TF,"rb"))
+	clean_avg, clean_std = pickle.load(open(out_dir + "/%s_norm.p" % TF, "rb"))
 else:
 	#============================================================
 	# PREPROCESS ARRAY
@@ -102,7 +106,7 @@ else:
 	time_start = time.time()
 	clean_avg = np.average(X_train, axis=0)
 	clean_std = np.std(X_train,axis=0)
-
+	pickle.dump((clean_avg, clean_std), open(out_dir + "/%s_norm.p" % TF, "wb")) 
 	def normalize(array):
 		return (array-clean_avg)/clean_std
 
