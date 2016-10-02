@@ -86,7 +86,7 @@ qb_0 = Normal(mu=tf.Variable(tf.random_normal([2])),
 qb_1 = Normal(mu=tf.Variable(tf.random_normal([1])),
               sigma=tf.nn.softplus(tf.Variable(tf.random_normal([1]))))
 
-data = {y: y_train}
+data = {y: y_train, x_place: x_train, x:x_place}
 inference = ed.MFVI({W_0: qW_0, b_0: qb_0,
                      W_1: qW_1, b_1: qb_1}, data)
 
@@ -97,7 +97,7 @@ init.run(feed_dict={x_place: x_train})
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100,)
+inference.run(n_iter=500, n_samples=5, n_print=100, )
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
