@@ -15,6 +15,8 @@ Variational model
 #from __future__ import division
 #from __future__ import print_function
 
+#/home/pdeford1/anaconda2/envs/DREAM-TFBS/lib/python2.7/site-packages/edward/inferences.py
+#Modified `edward` to allow `feed_dict` to be passed to Inference.run()
 import edward as ed
 import numpy as np
 import tensorflow as tf
@@ -86,7 +88,7 @@ qb_0 = Normal(mu=tf.Variable(tf.random_normal([2])),
 qb_1 = Normal(mu=tf.Variable(tf.random_normal([1])),
               sigma=tf.nn.softplus(tf.Variable(tf.random_normal([1]))))
 
-data = {y: y_train, x_place: x_train, x:x_place}
+data = {y: y_train}
 inference = ed.MFVI({W_0: qW_0, b_0: qb_0,
                      W_1: qW_1, b_1: qb_1}, data)
 
@@ -97,7 +99,7 @@ init.run(feed_dict={x_place: x_train})
 
 # RUN MEAN-FIELD VARIATIONAL INFERENCE
 print "INFERENCE"
-inference.run(n_iter=500, n_samples=5, n_print=100, )
+inference.run(n_iter=5000, n_samples=5, n_print=5001, feed_dict={x_place: x_train})
 
 # GET FITS, AND LEARN LOGISTIC REGRESSION MODEL ON OUTPUT
 print "TRAIN LOGIT"
