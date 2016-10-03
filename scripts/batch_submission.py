@@ -35,9 +35,9 @@ project = syn.get(7114158)
 # 
 print('Getting evaluation queue.')
 # Ladder Round 
-evaluation = syn.getEvaluation(7071644)
+#evaluation = syn.getEvaluation(7071644)
 # Final Round
-# evaluation = syn.getEvaluation(7212779)
+evaluation = syn.getEvaluation(7212779)
 
 
 for filename in submission_files: 
