@@ -83,7 +83,7 @@ while read TF;
 						bigWigAverageOverBed -minMax $out_dir'/'$TF'_StruM.bw' average_regions.bed $out_dir'/'$TF'_StruM.tsv'
 				fi
 		fi
-	done < tfs.txt
+	done < final_tfs.txt
 
 
 # Find the closest 5-genes to every 50bp window, and pull out their avg. FPKM in all cell types
